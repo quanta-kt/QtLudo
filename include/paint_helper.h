@@ -10,6 +10,13 @@
 
 enum class PlayerColor;
 
+/* This namespace provides helper function for drawing board and Pawns.
+ * Most of the function arguments taken by these function refer to `relative`
+ * positions of the stuff. (by relative I mean not reffering to screen points,
+ * but rather one cell on the board is point and position of pawns are those points)
+ * This should not be confused with screen points which are mostly `retured` by
+ * these functions. Think of this namespace as a medium to convert those `relative`
+ * geometry to `screen` geometry */
 namespace painthelp {
 
     //Return the absolute rectangular area on screen of the cell by it's x and y cordinates
@@ -33,7 +40,8 @@ namespace painthelp {
     //Returns the rectangular region as QRect covering the destination box
     QRect getDestRect();
 
-    //Shifts the rect's corner to center of itself
+    /* Shifts the rect's corner to center of itself
+     * NOTE: The parameter taken in this function reffers to screen geometry */
     QRect shiftToCenter(QRect it);
 
     //Returns the vector of rects where white circles inside homes are to be drawn
@@ -65,7 +73,6 @@ namespace painthelp {
 
     //Returns the QRect on the cell where guider dots are to be drawn
     QRect getGuiderRegion(QRect cell);
-
 }
 
 #endif
