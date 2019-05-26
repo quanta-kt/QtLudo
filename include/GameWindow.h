@@ -12,6 +12,8 @@
 #include <QVector>
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
+#include <QParallelAnimationGroup>
+#include <QEasingCurve>
 
 class Game;
 class Board;
@@ -60,7 +62,14 @@ public:
     //Stroke size
     static const int STROKE_WIDTH = 2;
 
+    //Time taken for animating single step move of a pawn
     static const int ANIMATION_DURATION = 120;
+
+    //Time taken for dice roll animation
+    static const int DICE_ANIMATION_DURATION = 800;
+
+    //Distance the dice is shaken
+    static const int DICE_SHAKE_DISTANCE = 25;
 
     //Constructor and destructor
     explicit GameWindow();
@@ -86,6 +95,9 @@ public slots:
     /* Called when the pawn visual animation is finished */
     void pawnAnimationFinished();
 
+    /* Called when the dice roll animation is finished */
+    void diceAnimationFinished();
+
 private:
     unsigned int players_count {}; //No of players
     Game *mGame {}; //current game
@@ -97,14 +109,17 @@ private:
     QVBoxLayout *footerLayout {}; //Layout for footer
     Dice *dice; //Dice control
     QLabel *hintLabel {}; //Hint text
-    QSequentialAnimationGroup *animationGroup {};
-    QPropertyAnimation *animation {};
+    QSequentialAnimationGroup *animationGroup {}; //Pawn animation
+    QParallelAnimationGroup *diceAnimationGroup {}; //Dice Rolling animation
 
     /*Causes the pawn visual to move*/
     void movePawnVisual(Pawn *p, int oldpos);
 
     //Moves the pawn visuals through an animation
     void animateVisualMovement(Pawn* p, int startRel);
+
+    //Animates the dice before showing of it's value
+    void animateDiceRoll();
 
     //Just helper functions
     void drawHomes(QPainter &painter);

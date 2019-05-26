@@ -27,21 +27,34 @@ void Dice::setValue(unsigned int v) {
 }
 
 QColor Dice::getColor() {
-    return color;
+    return backColor;
 }
 
 void Dice::setColor(QColor c) {
-    this->color = c;
+    this->backColor = c;
     this->repaint();
 }
 
-void Dice::setSize(qreal size) {
-    this->setFixedSize(size, size);
+void Dice::setVisualSize(qreal size) {
+    /* Leaving some extra space so we can rotate the dice properly
+     * This is important because a sqaure needs extra space to fit in when
+     * it is rotated */
+    qreal abs_size = 2 * (qSqrt((size*size)/2));
+    this->setFixedSize(abs_size, abs_size);
     this->size = size;
 }
 
-qreal Dice::getSize() {
+qreal Dice::getVisualSize() {
     return size;
+}
+
+void Dice::rotate(int degres) {
+    this->rotation = degres;
+    repaint();
+}
+
+int Dice::getRotation() {
+    return this->rotation;
 }
 
 void Dice::setEnabled(bool e) {
@@ -63,26 +76,37 @@ void Dice::paintEvent(QPaintEvent *e) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
+    //Apply the rotation first
+    //Properly translate it so that our "extra gap" does'nt messes up with drawing
+    //see: comments at Dice::setDiceSize
+    painter.translate(this->width() / 2, this->height() / 2);
+    painter.rotate(rotation);
+
+    /* translate to the right corner, keeping the half of the "extra space" as
+     * margin space at all sides */
+    painter.translate(this->width() / -2 + (this->width() - this->getVisualSize()) / 2,
+        this->height() / -2 + (this->height() - this->getVisualSize())/2);
+
     QPainterPath outline {};
 
     /* Extra space (half of border width) left for outline,
      * this causes improvements in graphics rendering */
     outline.addRoundedRect(
         QRectF(QPointF(stroke_width / 2, stroke_width / 2),
-        QPoint(getSize() - stroke_width / 2, getSize() - stroke_width / 2)),
+        QPoint(this->getVisualSize() - stroke_width / 2, this->getVisualSize() - stroke_width / 2)),
         10, 10
     );
 
     QPen pen(COLOR_DICE_SECONDARY, 2);
 
     painter.setPen(pen);
-    painter.setBrush(color);
+    painter.setBrush(backColor);
     painter.drawPath(outline);
 
     //Draw numbers on dice
     painter.setBrush(COLOR_DICE_SECONDARY);
-    qreal dot_rad = this->getSize() / 12.0; //Radius of the dots
-    QPointF center = QPointF {getSize() / 2, getSize() / 2};
+    qreal dot_rad = this->getVisualSize() / 12.0; //Radius of the dots
+    QPointF center = QPointF {getVisualSize() / 2, getVisualSize() / 2};
 
     QPointF left = QPointF {center.x() - (dot_rad * 3), center.y()};
     QPointF right = QPointF {center.x() + (dot_rad * 3), center.y()};

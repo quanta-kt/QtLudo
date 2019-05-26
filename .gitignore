@@ -5,3 +5,4 @@ moc_*.h
 Makefile
 QtLudo
 .qmake.stash
+.fuse_hidden

@@ -10,6 +10,7 @@
 #include <QColor>
 #include <QMouseEvent>
 #include <QtGlobal>
+#include <QtMath>
 
 class GameWindow;
 
@@ -19,7 +20,10 @@ class GameWindow;
 class Dice : public QWidget {
     Q_OBJECT
     Q_PROPERTY(unsigned int value READ getValue WRITE setValue)
-    Q_PROPERTY(QColor color READ getColor WRITE setColor)
+    Q_PROPERTY(QColor backColor READ getColor WRITE setColor)
+
+    //Rotates the dice on sceen (rotation measured in degres)
+    Q_PROPERTY(qreal rotation READ getRotation WRITE rotate)
 
 public:
 
@@ -40,9 +44,17 @@ public:
     QColor getColor();
     void setColor(QColor c);
 
-    /*Sets the dice size*/
-    void setSize(qreal size);
-    qreal getSize();
+    /* Sets the dice size
+     * NOTE: This is not the absolute widget size, it is calculated by adding
+     * some "extra space to it"
+     * read comments on the defination for more details */
+    void setVisualSize(qreal size);
+    qreal getVisualSize();
+
+    //Rotates the dice by given degrees
+    void rotate(int degrees);
+    //Returns the current rotation
+    int getRotation();
 
     /* Setter and getter for usability of dice
      * If set to true, clicks are accepted and ignored if false
@@ -57,9 +69,10 @@ signals:
 private:
     qreal stroke_width {};
     unsigned int current_value {};
-    QColor color {};
+    QColor backColor {};
     qreal size {};
     bool enabled {true};
+    qreal rotation {0}; //Rotation in degrees
 
     /* Here's where you draw */
     void paintEvent(QPaintEvent *e);

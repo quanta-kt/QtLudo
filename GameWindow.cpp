@@ -27,12 +27,12 @@ players_count {4}, mGame {new Game(players_count)}, mBoard {mGame->getGameBoard(
 state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
 dice {new Dice(nullptr, STROKE_WIDTH, 6)}, hintLabel {new QLabel("Player 1: Roll the dice!!")} {
 
-    dice->setSize(DICE_SIZE);
+    dice->setVisualSize(DICE_SIZE);
     dice->setColor(COLOR_RED_LIGHT);
     hintLabel->setFixedHeight(35);
 
     footer->move(BOARD_BOUND, (CELL_SIZE * 15) + BOARD_BOUND); //To bottom
-    footer->setFixedSize(CELL_SIZE * 15, CELL_SIZE * 2.5);
+    footer->setFixedSize(CELL_SIZE * 15, CELL_SIZE * 2.7);
 
     footerLayout->addWidget(dice, 0, Qt::AlignHCenter);
     footerLayout->addWidget(hintLabel, 0, Qt::AlignHCenter);
@@ -123,11 +123,54 @@ void GameWindow::updateUi() {
 
 void GameWindow::rollDiceClicked() {
 
-    unsigned int diceVal = mGame->rollDice();
-    dice->setValue(diceVal);
+    mGame->rollDice();
     hintLabel->setText(QString(""));
 
-    QVector<Pawn*> playables = mGame->getPlayablePawns(diceVal);
+    animateDiceRoll();
+}
+
+void GameWindow::animateDiceRoll() {
+    state = ANIMATING;
+    updateUi();
+
+    if(diceAnimationGroup != 0)
+        delete diceAnimationGroup;
+
+    diceAnimationGroup = new QParallelAnimationGroup {};
+
+    QPropertyAnimation *rollanimation = new QPropertyAnimation {dice, "rotation", diceAnimationGroup};
+    rollanimation->setStartValue(0);
+    rollanimation->setEndValue(360*8);
+    rollanimation->setDuration(DICE_ANIMATION_DURATION);
+    rollanimation->setEasingCurve(QEasingCurve::InOutQuad);
+
+    QSequentialAnimationGroup *shake = new QSequentialAnimationGroup {diceAnimationGroup};
+
+    for (int i = 0; i < 5; i++) {
+        QPropertyAnimation *s = new QPropertyAnimation {dice, "pos", shake};
+        s->setStartValue(QPoint(dice->x(), dice->y()));
+        s->setKeyValueAt(0.25, QPoint(dice->x() - DICE_SHAKE_DISTANCE, dice->y()));
+        s->setKeyValueAt(0.50, QPoint(dice->x(), dice->y()));
+        s->setKeyValueAt(0.75, QPoint(dice->x() + DICE_SHAKE_DISTANCE, dice->y()));
+        s->setEndValue(QPoint(dice->x(), dice->y()));
+        s->setDuration(DICE_ANIMATION_DURATION / 5);
+        s->setEasingCurve(QEasingCurve::InOutQuad);
+        shake->addAnimation(s);
+    }
+
+    diceAnimationGroup->addAnimation(rollanimation);
+    diceAnimationGroup->addAnimation(shake);
+    diceAnimationGroup->start();
+
+    connect(diceAnimationGroup, &QParallelAnimationGroup::finished,
+        this,&GameWindow::diceAnimationFinished);
+}
+
+void GameWindow::diceAnimationFinished() {
+
+    dice->setValue(mGame->getLastDiceValue());
+
+    QVector<Pawn*> playables = mGame->getPlayablePawns(mGame->getLastDiceValue());
 
     if(playables.size() == 0) {
         mGame->changeCurrentPlayer(); //We got no pawns worth moving
@@ -177,21 +220,6 @@ void GameWindow::movePawnVisual(Pawn *p, int newrel) {
     updateUi();
 }
 
-void GameWindow::pawnClashed(Pawn *p) {
-    p->changePosition(Pawn::HOME);
-    //This line is used in the the Constructor of Pawn and has details in the comment there
-    p->setGeometry(painthelp::getPawnHomePosGeometry(p->getColor(), ((p->getId()+1) % 4) + 1));
-}
-
-void GameWindow::pawnAnimationFinished() {
-    if (!mGame->playMove(currentPawn, mGame->getLastDiceValue()))
-        mGame->changeCurrentPlayer();
-
-    state = ROLLING;
-    updateUi();
-}
-
-
 void GameWindow::animateVisualMovement(Pawn* p, int endRel) {
     qInfo() << "GameWindow::animateVisualMovement()";
 
@@ -205,7 +233,7 @@ void GameWindow::animateVisualMovement(Pawn* p, int endRel) {
         QRect iniCell = painthelp::getPawnGeometry(mBoard->getPawnCoordinates(p->getColor(), i-1));
         QRect destCell = painthelp::getPawnGeometry(mBoard->getPawnCoordinates(p->getColor(), i));
 
-        animation = new QPropertyAnimation {p, "geometry"};
+        QPropertyAnimation *animation = new QPropertyAnimation (p, "geometry");
         animation->setDuration(ANIMATION_DURATION);
         animation->setStartValue(iniCell);
         animation->setEndValue(destCell);
@@ -214,8 +242,22 @@ void GameWindow::animateVisualMovement(Pawn* p, int endRel) {
         animationGroup->addPause(100); //This feels smooth
     }
 
-    connect(animationGroup, SIGNAL(finished()), this, SLOT(pawnAnimationFinished()));
+    connect(animationGroup, &QSequentialAnimationGroup::finished, this, &GameWindow::pawnAnimationFinished);
     animationGroup->start();
+}
+
+void GameWindow::pawnClashed(Pawn *p) {
+    p->changePosition(Pawn::HOME);
+    //This line is used in the the Constructor of Pawn and has details in the comment there
+    p->setGeometry(painthelp::getPawnHomePosGeometry(p->getColor(), ((p->getId()+1) % 4) + 1));
+}
+
+void GameWindow::pawnAnimationFinished() {
+    if (!mGame->playMove(currentPawn, mGame->getLastDiceValue()))
+        mGame->changeCurrentPlayer();
+
+    state = ROLLING;
+    updateUi();
 }
 
 void GameWindow::paintEvent(QPaintEvent *e) {
