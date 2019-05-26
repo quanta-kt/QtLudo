@@ -36,9 +36,9 @@ public:
     //Width and height of each cell
     static const int CELL_SIZE = 40;
     //guider-dot size
-    static const int GUIDER_DOT_SIZE = CELL_SIZE / 5;
+    static const int GUIDER_DOT_SIZE = 8;
     //Pawn visual size
-    static const int PAWN_SIZE = CELL_SIZE * 0.70;
+    static const int PAWN_SIZE = 26;
     //Stroke size
     static const int STROKE_WIDTH = 2;
 
