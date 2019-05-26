@@ -1,0 +1,142 @@
+#include <Dice.h>
+
+#include <GameWindow.h>
+
+#include <string>
+
+#include <QDebug>
+
+const QColor Dice::COLOR_DICE_SECONDARY = QColor (57, 60, 63);
+
+Dice::Dice(QWidget *parent, qreal stroke_width, unsigned int init_val) :
+QWidget(parent), stroke_width(stroke_width), current_value(init_val) {}
+
+Dice::~Dice() {}
+
+unsigned int Dice::getValue() {
+    return current_value;
+}
+
+void Dice::setValue(unsigned int v) {
+    if(v < 1 || v > 6)
+        throw std::string {"Dice::setValue : Invalid value for dice face : "} +
+        std::to_string(v);
+
+    current_value = v;
+    this->repaint();
+}
+
+QColor Dice::getColor() {
+    return color;
+}
+
+void Dice::setColor(QColor c) {
+    this->color = c;
+    this->repaint();
+}
+
+void Dice::setSize(qreal size) {
+    this->setFixedSize(size, size);
+    this->size = size;
+}
+
+qreal Dice::getSize() {
+    return size;
+}
+
+void Dice::setEnabled(bool e) {
+    this->enabled = e;
+}
+
+bool Dice::isEnabled() {
+    return this->enabled;
+}
+
+void Dice::mousePressEvent(QMouseEvent *e) {
+    if(!this->isEnabled())
+        return;
+
+    emit clicked();
+}
+
+void Dice::paintEvent(QPaintEvent *e) {
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    QPainterPath outline {};
+
+    /* Extra space (half of border width) left for outline,
+     * this causes improvements in graphics rendering */
+    outline.addRoundedRect(
+        QRectF(QPointF(stroke_width / 2, stroke_width / 2),
+        QPoint(getSize() - stroke_width / 2, getSize() - stroke_width / 2)),
+        10, 10
+    );
+
+    QPen pen(COLOR_DICE_SECONDARY, 2);
+
+    painter.setPen(pen);
+    painter.setBrush(color);
+    painter.drawPath(outline);
+
+    //Draw numbers on dice
+    painter.setBrush(COLOR_DICE_SECONDARY);
+    qreal dot_rad = this->getSize() / 12.0; //Radius of the dots
+    QPointF center = QPointF {getSize() / 2, getSize() / 2};
+
+    QPointF left = QPointF {center.x() - (dot_rad * 3), center.y()};
+    QPointF right = QPointF {center.x() + (dot_rad * 3), center.y()};
+
+    QPointF top = QPointF {center.x(), center.y() - (dot_rad * 3)};
+    QPointF bottom = QPointF {center.x(), center.y() + (dot_rad * 3)};
+
+    QPointF topleft = QPointF {left.x(), top.y()};
+    QPointF topright = QPointF {right.x(), top.y()};
+
+    QPointF bottomleft = QPointF {left.x(), bottom.y()};
+    QPointF bottomright = QPointF {right.x(), bottom.y()};
+
+    switch (current_value) {
+        case 1:
+            painter.drawEllipse(center, dot_rad, dot_rad);
+            break;
+
+        case 2:
+            painter.drawEllipse(left, dot_rad, dot_rad);
+            painter.drawEllipse(right, dot_rad, dot_rad);
+            break;
+
+        case 3:
+            painter.drawEllipse(center, dot_rad, dot_rad);
+            painter.drawEllipse(left, dot_rad, dot_rad);
+            painter.drawEllipse(right, dot_rad, dot_rad);
+            break;
+
+        case 4:
+            painter.drawEllipse(topleft, dot_rad, dot_rad);
+            painter.drawEllipse(topright, dot_rad, dot_rad);
+            painter.drawEllipse(bottomleft, dot_rad, dot_rad);
+            painter.drawEllipse(bottomright, dot_rad, dot_rad);
+            break;
+
+        case 5:
+            painter.drawEllipse(center, dot_rad, dot_rad);
+            painter.drawEllipse(topleft, dot_rad, dot_rad);
+            painter.drawEllipse(topright, dot_rad, dot_rad);
+            painter.drawEllipse(bottomleft, dot_rad, dot_rad);
+            painter.drawEllipse(bottomright, dot_rad, dot_rad);
+            break;
+
+        case 6:
+            painter.drawEllipse(top, dot_rad, dot_rad);
+            painter.drawEllipse(bottom, dot_rad, dot_rad);
+            painter.drawEllipse(topleft, dot_rad, dot_rad);
+            painter.drawEllipse(topright, dot_rad, dot_rad);
+            painter.drawEllipse(bottomleft, dot_rad, dot_rad);
+            painter.drawEllipse(bottomright, dot_rad, dot_rad);
+            break;
+
+        default:
+            break;
+    }
+}

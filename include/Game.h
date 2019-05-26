@@ -10,6 +10,9 @@ enum class PlayerColor;
 
 class Game {
 public:
+    /* This is a configuration constant.
+     * True value means pawn require a six to get out of homes.
+     * TODO: This should be under user-control */
     static constexpr bool SIX_FOR_HOME = false;
 
     /*players: no of players playing the game*/

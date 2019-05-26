@@ -16,12 +16,17 @@
 class Game;
 class Board;
 class Pawn;
+class Dice;
 enum class PlayerColor;
 
 class GameWindow : public QWidget {
     Q_OBJECT;
 public:
-    enum GameState {ROLLING, MOVING, ANIMATING}; //Defines game state. Rolling : dice needs to be rolled. MOVING : player needs to choose a pawn to move
+    /* Defines game state.
+     * Rolling : dice needs to be rolled.
+     * MOVING : player needs to choose a pawn to move
+     * ANIMATING : An animation is playing */
+    enum GameState {ROLLING, MOVING, ANIMATING};
 
     //Colors for each player, background and stroke
     static const QColor COLOR_RED;
@@ -30,6 +35,12 @@ public:
     static const QColor COLOR_GREEN;
     static const QColor BG_COLOR;
     static const QColor STROKE_COLOR;
+
+    //Color for dice background
+    static const QColor COLOR_RED_LIGHT;
+    static const QColor COLOR_YELLOW_LIGHT;
+    static const QColor COLOR_BLUE_LIGHT;
+    static const QColor COLOR_GREEN_LIGHT;
 
     //Space to leave on all sides, apart from board
     static const int BOARD_BOUND = 5;
@@ -84,7 +95,7 @@ private:
 
     QWidget *footer {}; //Widget for user-interaction
     QVBoxLayout *footerLayout {}; //Layout for footer
-    QPushButton *diceButton {}; //Button to roll the dice
+    Dice *dice; //Dice control
     QLabel *hintLabel {}; //Hint text
     QSequentialAnimationGroup *animationGroup {};
     QPropertyAnimation *animation {};

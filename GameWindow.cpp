@@ -4,6 +4,7 @@
 #include <Board.h>
 #include <Pawn.h>
 #include <PlayerColor.h>
+#include <Dice.h>
 
 #include <paint_helper.h>
 
@@ -16,19 +17,24 @@ const QColor GameWindow::COLOR_GREEN = QColor (121,189,154);
 const QColor GameWindow::BG_COLOR = QColor (251,248,248);
 const QColor GameWindow::STROKE_COLOR = QColor (128,128,128);
 
+const QColor GameWindow::COLOR_RED_LIGHT = QColor (255,134,134);
+const QColor GameWindow::COLOR_YELLOW_LIGHT = QColor (255,252,151);
+const QColor GameWindow::COLOR_BLUE_LIGHT = QColor (102,212,224);
+const QColor GameWindow::COLOR_GREEN_LIGHT = QColor (153,235,148);
 
 GameWindow::GameWindow() :
 players_count {4}, mGame {new Game(players_count)}, mBoard {mGame->getGameBoard()},
 state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
-diceButton {new QPushButton(tr("%1").arg(mGame->rollDice()))}, hintLabel {new QLabel("Player 1: Roll the dice!!")} {
+dice {new Dice(nullptr, STROKE_WIDTH, 6)}, hintLabel {new QLabel("Player 1: Roll the dice!!")} {
 
-    diceButton->setFixedSize(DICE_SIZE, DICE_SIZE);
+    dice->setSize(DICE_SIZE);
+    dice->setColor(COLOR_RED_LIGHT);
     hintLabel->setFixedHeight(35);
 
     footer->move(BOARD_BOUND, (CELL_SIZE * 15) + BOARD_BOUND); //To bottom
     footer->setFixedSize(CELL_SIZE * 15, CELL_SIZE * 2.5);
 
-    footerLayout->addWidget(diceButton, 0, Qt::AlignHCenter);
+    footerLayout->addWidget(dice, 0, Qt::AlignHCenter);
     footerLayout->addWidget(hintLabel, 0, Qt::AlignHCenter);
     footer->setLayout(footerLayout);
 
@@ -38,11 +44,7 @@ diceButton {new QPushButton(tr("%1").arg(mGame->rollDice()))}, hintLabel {new QL
             footer->height() //Extra space for interaction widget
     );
 
-    QFont diceFont = diceButton->font();
-    diceFont.setPointSize(25);
-    diceButton->setFont(diceFont);
-
-    QObject::connect(diceButton, SIGNAL(clicked()), this, SLOT(rollDiceClicked()));
+    QObject::connect(dice, SIGNAL(clicked()), this, SLOT(rollDiceClicked()));
 
     //Attach all pawns with the game window
     for(auto pawn : mBoard->getAllPawns()) {
@@ -52,7 +54,7 @@ diceButton {new QPushButton(tr("%1").arg(mGame->rollDice()))}, hintLabel {new QL
 }
 
 GameWindow::~GameWindow() {
-    delete diceButton;
+    delete dice;
     delete hintLabel;
     delete footerLayout;
     delete footer;
@@ -77,6 +79,24 @@ QString GameWindow::getUserName(PlayerColor color) {
 }
 
 void GameWindow::updateUi() {
+    qInfo() << "\n\n updateUi called**********";
+
+    //Set appropriate color for dice
+    switch (mGame->getCurrentPlayer()) {
+        case PlayerColor::RED:
+            dice->setColor(COLOR_RED_LIGHT);
+            break;
+        case PlayerColor::YELLOW:
+            dice->setColor(COLOR_YELLOW_LIGHT);
+            break;
+        case PlayerColor::BLUE:
+            dice->setColor(COLOR_BLUE_LIGHT);
+            break;
+        case PlayerColor::GREEN:
+            dice->setColor(COLOR_GREEN_LIGHT);
+            break;
+    }
+
     if (state == ROLLING) {
         hintLabel->setText(
             QString("%1: Roll the dice!")
@@ -84,27 +104,27 @@ void GameWindow::updateUi() {
             );
         for (auto p : mBoard->getAllPawns())
             p->setEnabled(false);
+        dice->setEnabled(true);
 
     } else if (state == MOVING) {
         hintLabel->setText(
             QString("%1: Choose a pawn to move!")
                 .arg(getUserName(mGame->getCurrentPlayer()))
             );
+        dice->setEnabled(false);
 
     } else if (state == ANIMATING) {
         hintLabel->setText(tr(""));
+        dice->setEnabled(false);
 
-    } else {
+    } else
         throw std::string {"GameWindow::updateUi() : Invalid value for GameWindow::state"};
-    }
 }
 
 void GameWindow::rollDiceClicked() {
-    if(state != ROLLING) //No messing with dice when you're supposed to choose a Pawn !
-        return;
 
     unsigned int diceVal = mGame->rollDice();
-    diceButton->setText(QString::number(diceVal));
+    dice->setValue(diceVal);
     hintLabel->setText(QString(""));
 
     QVector<Pawn*> playables = mGame->getPlayablePawns(diceVal);
@@ -112,7 +132,6 @@ void GameWindow::rollDiceClicked() {
     if(playables.size() == 0) {
         mGame->changeCurrentPlayer(); //We got no pawns worth moving
         state = ROLLING;
-        updateUi();
 
     } else if(playables.size() == 1) { //Only a singal move available, rather not ask for it
         pawnChosen(playables[0]); //Auto choosen
@@ -137,7 +156,7 @@ void GameWindow::pawnChosen(Pawn *p) {
 }
 
 void GameWindow::movePawnVisual(Pawn *p, int newrel) {
-    qInfo() << "GameWindow::pawnMoved()";
+    qInfo() << "GameWindow::movePawnVisual()";
 
     if(p->isAtHome()) {
         qDebug() << "GameWindow::movePawnVisual : p->isAtHome() == true  newrel == " << newrel;
