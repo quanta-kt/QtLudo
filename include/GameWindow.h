@@ -33,12 +33,19 @@ public:
 
     //Space to leave on all sides, apart from board
     static const int BOARD_BOUND = 5;
+
     //Width and height of each cell
     static const int CELL_SIZE = 40;
+
     //guider-dot size
     static const int GUIDER_DOT_SIZE = 8;
+
     //Pawn visual size
     static const int PAWN_SIZE = 26;
+
+    //Dice size
+    static const int DICE_SIZE = 50;
+
     //Stroke size
     static const int STROKE_WIDTH = 2;
 

@@ -22,19 +22,21 @@ players_count {4}, mGame {new Game(players_count)}, mBoard {mGame->getGameBoard(
 state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
 diceButton {new QPushButton(tr("%1").arg(mGame->rollDice()))}, hintLabel {new QLabel("Player 1: Roll the dice!!")} {
 
-    diceButton->setFixedSize(CELL_SIZE * 1.5, CELL_SIZE * 1.5);
+    diceButton->setFixedSize(DICE_SIZE, DICE_SIZE);
     hintLabel->setFixedHeight(35);
-    this->setFixedSize(
-        (BOARD_BOUND * 2) + (CELL_SIZE * 15),
-        (CELL_SIZE * 15) +
-            diceButton->height() + hintLabel->height() //Extra space for interaction widget
-    );
 
     footer->move(BOARD_BOUND, (CELL_SIZE * 15) + BOARD_BOUND); //To bottom
     footer->setFixedSize(CELL_SIZE * 15, CELL_SIZE * 2.5);
+
     footerLayout->addWidget(diceButton, 0, Qt::AlignHCenter);
     footerLayout->addWidget(hintLabel, 0, Qt::AlignHCenter);
     footer->setLayout(footerLayout);
+
+    this->setFixedSize(
+        (BOARD_BOUND * 2) + (CELL_SIZE * 15),
+        (CELL_SIZE * 15) +
+            footer->height() //Extra space for interaction widget
+    );
 
     QFont diceFont = diceButton->font();
     diceFont.setPointSize(25);
