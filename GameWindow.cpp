@@ -25,23 +25,27 @@ const QColor GameWindow::COLOR_GREEN_LIGHT = QColor (153,235,148);
 GameWindow::GameWindow() :
 players_count {4}, mGame {new Game(players_count)}, mBoard {mGame->getGameBoard()},
 state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
-dice {new Dice(nullptr, STROKE_WIDTH, 6)}, hintLabel {new QLabel("Player 1: Roll the dice!!")} {
+dice {new Dice(nullptr, STROKE_WIDTH, 6)}, hintLabel {new QLabel()} {
 
     dice->setVisualSize(DICE_SIZE);
+    hintLabel->setFixedHeight(CELL_SIZE);
+
+    footer->setFixedSize(CELL_SIZE * 5, dice->height()+hintLabel->height());
+    footer->move((CELL_SIZE * 15),
+        BOARD_BOUND + (this->height() / 2)); //To center-right
+
+    hintLabel->setWordWrap(true);
     dice->setColor(COLOR_RED_LIGHT);
-    hintLabel->setFixedHeight(35);
+    hintLabel->setFixedWidth(footer->geometry().width());
+    hintLabel->setAlignment(Qt::AlignCenter);
 
-    footer->move(BOARD_BOUND, (CELL_SIZE * 15) + BOARD_BOUND); //To bottom
-    footer->setFixedSize(CELL_SIZE * 15, CELL_SIZE * 2.7);
-
-    footerLayout->addWidget(dice, 0, Qt::AlignHCenter);
-    footerLayout->addWidget(hintLabel, 0, Qt::AlignHCenter);
+    footerLayout->addWidget(dice, 0, Qt::AlignCenter);
+    footerLayout->addWidget(hintLabel, 0, Qt::AlignCenter);
     footer->setLayout(footerLayout);
 
     this->setFixedSize(
-        (BOARD_BOUND * 2) + (CELL_SIZE * 15),
-        (CELL_SIZE * 15) +
-            footer->height() //Extra space for interaction widget
+        (BOARD_BOUND * 2) + (CELL_SIZE * 15) + footer->width(), //Extra space for interaction widget,
+        (BOARD_BOUND * 2) + (CELL_SIZE * 15)
     );
 
     QObject::connect(dice, SIGNAL(clicked()), this, SLOT(rollDiceClicked()));
@@ -51,6 +55,10 @@ dice {new Dice(nullptr, STROKE_WIDTH, 6)}, hintLabel {new QLabel("Player 1: Roll
         pawn->attatchWindow(this);
         pawn->setEnabled(false); //Disable all the pawn visuals (buttons)
     }
+
+    updateUi();
+
+    qDebug() << footer->x() << footer->y() << hintLabel->size().height();
 }
 
 GameWindow::~GameWindow() {
