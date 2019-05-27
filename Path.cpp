@@ -1,5 +1,9 @@
 #include <Path.h>
 
+#include <QString>
+
+#include <ValueError.h>
+
 QVector<QPoint> Path::path = {
     QPoint(1, 6),
     QPoint(2, 6),
@@ -73,8 +77,10 @@ QVector<QPoint> Path::path = {
 const unsigned int Path::MAX_REL = Path::path.size() - 1;
 
 QPoint Path::getAbsoluteCordinates(unsigned int rel) {
-    if(rel >= path.size())
-        throw std::string {"Path::getAbsoluteCordinates(unsigned long int) : Invalid argument : rel == "} + std::to_string(rel);
+    if(rel >= (unsigned int)path.size())
+        ValueError::raise_new(QString("Path::getAbsoluteCordinates(unsigned long int) \
+        : Invalid argument : rel == %1").arg(rel));
+
     return path[rel];
 }
 

@@ -1,9 +1,9 @@
-#include <string>
-#include <iostream>
-
 #include <QApplication>
+#include <QString>
+#include <QDebug>
 
 #include <GameWindow.h>
+#include <ValueError.h>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
@@ -12,9 +12,8 @@ int main(int argc, char *argv[]) {
         GameWindow window {};
         window.show();
         return app.exec();
-
-    } catch (std::string e) {
-        std::cout << e << '\n';
+    } catch (ValueError *e) {
+        qDebug() << e->why() << '\n';
     }
 
 }

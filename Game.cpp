@@ -1,10 +1,11 @@
 #include <Game.h>
 
+#include <QDebug>
+
 #include <Board.h>
 #include <Pawn.h>
 #include <PlayerColor.h>
-
-#include <QDebug>
+#include <ValueError.h>
 
 Game::Game(unsigned int players) :
     players_count(players), mBoard(new Board {players}),
@@ -52,7 +53,7 @@ Board* Game::getGameBoard() {
 
 QVector<Pawn*> Game::getPlayablePawns(int diceFace) {
     if(diceFace < 1 || diceFace > 6)
-        throw std::string {"Invalid dice value"};
+        ValueError::raise_new(QString("Invalid dice value : %1").arg(diceFace));
 
     QVector<Pawn*> result;
     QVector<Pawn*> pawns = mBoard->getAllPawns();
@@ -73,13 +74,13 @@ QVector<Pawn*> Game::getPlayablePawns(int diceFace) {
     return result;
 }
 
-int Game::predictRel(Pawn* pawn, int diceFace) {
+unsigned int Game::predictRel(Pawn* pawn, unsigned int diceFace) {
     qInfo() << "Game::predictRel(Pawn*, int)";
 
     if(pawn->isAtHome() && diceFace != 6 && SIX_FOR_HOME)
-        throw std::string {"Invalid move"};
+        ValueError::raise_new(QString("Invalid move"));
     if(pawn->getRelPosition() + diceFace > Pawn::DEST)
-        throw std::string {"Invalid move"};
+        ValueError::raise_new(QString("Invalid move"));
 
     if(pawn->isAtHome()) //Just get out of home by one step
         return pawn->getRelPosition() + 1;
@@ -123,7 +124,7 @@ bool Game::playMove(Pawn* pawn, int diceFace) {
 }
 
 void Game::changeCurrentPlayer() {
-    if(current >= (currentSequence->size())-1) {
+    if(current >= (unsigned int)(currentSequence->size())-1) {
         current = 0;
         return;
     }

@@ -2,6 +2,7 @@
 
 #include <PlayerColor.h>
 #include <GameWindow.h>
+#include <ValueError.h>
 
 #include <QDebug>
 
@@ -81,8 +82,8 @@ namespace painthelp {
     }
 
     //Returns the vector of rects where white circles inside homes are to be drawn
-    std::vector<QRect> getHomeCircleRects() {
-        return std::vector<QRect> {
+    QVector<QRect> getHomeCircleRects() {
+        return QVector<QRect> {
             shiftToCenter(getCellRect(1, 1)),
             shiftToCenter(getCellRect(1, 3)),
             shiftToCenter(getCellRect(3, 1)),
@@ -106,11 +107,10 @@ namespace painthelp {
     }
 
     QRect getPawnHomePosGeometry(PlayerColor color, int which) {
-        if(which < 1 || which > 4) {
-            throw std::string {"Invalid value for which : "} + std::to_string(which);
-        }
+        if(which < 1 || which > 4)
+            ValueError::raise_new(QString("Invalid value for which : %1").arg(which));
 
-        std::vector<QRect> v = getHomeCircleRects();
+        QVector<QRect> v = getHomeCircleRects();
         switch (color) {
             case PlayerColor::RED:
                 return getPawnGeometry(v[which-1]);
@@ -123,8 +123,8 @@ namespace painthelp {
 
             //This should never happen.
             default:
-                throw std::string {"paint_helper.cpp:getPawnHomePos : \
-                Critical Error (no enum value fell for a switch)"};
+                ValueError::raise_new(QString("paint_helper.cpp:getPawnHomePos : \
+                Critical Error (no enum value fell for a switch)"));
         }
     }
 

@@ -1,14 +1,14 @@
 #include <GameWindow.h>
 
+#include <QDebug>
+
 #include <Game.h>
 #include <Board.h>
 #include <Pawn.h>
 #include <PlayerColor.h>
 #include <Dice.h>
-
 #include <paint_helper.h>
-
-#include <QDebug>
+#include <ValueError.h>
 
 const QColor GameWindow::COLOR_RED = QColor (249,94,95);
 const QColor GameWindow::COLOR_YELLOW = QColor (255,238,103);
@@ -72,10 +72,11 @@ QString GameWindow::getUserName(PlayerColor color) {
             return "Player 3";
         case PlayerColor::GREEN:
             return "Player 4";
-    }
 
-    //This should never happen
-    throw std::string {"GameWindow::getUserName(PlayerColor) : Invalid value of PlayerColor!"};
+        //This will never happen
+        default:
+            ValueError::raise_new(QString("GameWindow::getUserName(PlayerColor) : Invalid value of PlayerColor!"));
+    }
 }
 
 void GameWindow::updateUi() {
@@ -114,11 +115,11 @@ void GameWindow::updateUi() {
         dice->setEnabled(false);
 
     } else if (state == ANIMATING) {
-        hintLabel->setText(tr(""));
+        hintLabel->setText(QString(""));
         dice->setEnabled(false);
 
     } else
-        throw std::string {"GameWindow::updateUi() : Invalid value for GameWindow::state"};
+        ValueError::raise_new(QString("GameWindow::updateUi() : Invalid value for GameWindow::state"));
 }
 
 void GameWindow::rollDiceClicked() {
@@ -260,7 +261,7 @@ void GameWindow::pawnAnimationFinished() {
     updateUi();
 }
 
-void GameWindow::paintEvent(QPaintEvent *e) {
+void GameWindow::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 

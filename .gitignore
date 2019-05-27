@@ -1,8 +1,12 @@
 .directory
+include/.directory
+extra/*
+.fuse_hidden*
+
 *.o
+moc_*.o
 moc_*.cpp
 moc_*.h
 Makefile
 QtLudo
 .qmake.stash
-.fuse_hidden

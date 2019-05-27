@@ -1,10 +1,10 @@
 #include <Dice.h>
 
-#include <GameWindow.h>
-
-#include <string>
-
+#include <QString>
 #include <QDebug>
+
+#include <GameWindow.h>
+#include <ValueError.h>
 
 const QColor Dice::COLOR_DICE_SECONDARY = QColor (57, 60, 63);
 
@@ -19,8 +19,8 @@ unsigned int Dice::getValue() {
 
 void Dice::setValue(unsigned int v) {
     if(v < 1 || v > 6)
-        throw std::string {"Dice::setValue : Invalid value for dice face : "} +
-        std::to_string(v);
+        ValueError::raise_new(QString("Dice::setValue : Invalid value for dice face : ")
+            .arg(v));
 
     current_value = v;
     this->repaint();
@@ -65,14 +65,14 @@ bool Dice::isEnabled() {
     return this->enabled;
 }
 
-void Dice::mousePressEvent(QMouseEvent *e) {
+void Dice::mousePressEvent(QMouseEvent*) {
     if(!this->isEnabled())
         return;
 
     emit clicked();
 }
 
-void Dice::paintEvent(QPaintEvent *e) {
+void Dice::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 

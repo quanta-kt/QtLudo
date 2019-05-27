@@ -2,9 +2,8 @@
 #ifndef paint_helper_h
 #define  paint_helper_h
 
-#include <vector>
-#include <string>
-
+#include <QVector>
+#include <QString>
 #include <QRect>
 #include <QPoint>
 
@@ -45,7 +44,7 @@ namespace painthelp {
     QRect shiftToCenter(QRect it);
 
     //Returns the vector of rects where white circles inside homes are to be drawn
-    std::vector<QRect> getHomeCircleRects();
+    QVector<QRect> getHomeCircleRects();
 
     //Returns geometry for pawns when at home
     QRect getPawnHomePosGeometry(PlayerColor color, int which);

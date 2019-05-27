@@ -1,10 +1,12 @@
 #include <Board.h>
 
+#include <QString>
+#include <QDebug>
+
 #include <Pawn.h>
 #include <PlayerColor.h>
 #include <Path.h>
-
-#include <QDebug>
+#include <ValueError.h>
 
 Board::Board(unsigned int players) :
 mPlayers(players) {
@@ -35,8 +37,8 @@ mPlayers(players) {
             break;
 
         default:
-            throw std::string {"Invalid number of players. Expected value \
-            between 2 to 4 but got "} + std::to_string(players);
+            ValueError::raise_new(QString("Invalid number of players. Expected value \
+            between 2 to 4 but got %1").arg(players));
     }
 }
 
@@ -52,8 +54,8 @@ QPoint Board::getPawnCoordinates(PlayerColor color, unsigned int relpos) {
     qInfo() << "Board::getPawnCoordinates(PlayerColor, int) : relpos == " << relpos;
 
     if (relpos > Path::MAX_REL)
-        throw std::string {"Board::getPawnCoordinates(PlayerColor, unsigned int)\
-        : Invalid value for relpos == "} + std::to_string(relpos);
+        ValueError::raise_new(QString("Board::getPawnCoordinates(PlayerColor, unsigned int) \
+        : Invalid value for relpos == ").arg(relpos));
 
     switch (color) {
         case PlayerColor::RED:
@@ -64,10 +66,11 @@ QPoint Board::getPawnCoordinates(PlayerColor color, unsigned int relpos) {
             return Path::rotatePointToRight(Path::getAbsoluteCordinates(relpos), 2);
         case PlayerColor::GREEN:
             return Path::rotatePointToRight(Path::getAbsoluteCordinates(relpos), 3);
-        }
 
-    //This should never happen
-    throw std::string {"Board::getPawnCoordinates(PlayerColor, int) : Invalid PlayerColor"};
+        //This will never happen
+        default:
+            ValueError::raise_new(QString("Board::getPawnCoordinates(PlayerColor, int) : Invalid PlayerColor"));
+        }
 }
 
 /* Returns the coordinates of the pawn passed by pointer. Pawn is not required to be on board
@@ -106,9 +109,9 @@ Pawn* Board::getPawnById(unsigned int id) {
 /* Returns a vector of pawn pointers matching the given color */
 QVector<Pawn*> Board::getAllPawnsByColor(PlayerColor color) {
     if(color == PlayerColor::YELLOW && mPlayers == 2)
-        throw std::string {"Board::getAllPawnsByColor : Current game does not have YELLOW color"};
+        ValueError::raise_new(QString("Board::getAllPawnsByColor : Current game does not have YELLOW color"));
     if(color == PlayerColor::GREEN && mPlayers != 4)
-        throw std::string {"Board::getAllPawnsByColor : Current game does not have GREEN color"};
+        ValueError::raise_new(QString("Board::getAllPawnsByColor : Current game does not have GREEN color"));
 
     QVector<Pawn*> result {};
     for (auto p : mPawns) {

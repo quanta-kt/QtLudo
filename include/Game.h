@@ -32,7 +32,7 @@ public:
 
     /* Returns the predicted relative position of the pawn if it would move by
      * the given dice value */
-    int predictRel(Pawn* p, int diceFace);
+    unsigned int predictRel(Pawn* p, unsigned int diceFace);
 
     /* Moves the pawn by the value of dice face, handles additional consequences
      * (such as, an another Pawn getting knoked off) and allows the next player to

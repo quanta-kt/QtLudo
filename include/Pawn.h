@@ -17,7 +17,7 @@ public:
     //Home (start) position value for relative position of the pawn
     static const int HOME = -1;
     //Destination position value for relative position of the pawn
-    static const int DEST = 58;
+    static const int DEST = 56;
 
     //Constructor: Should NOT be used externally (outside the library)
     //board - Pointer to the board which will hold the pawn

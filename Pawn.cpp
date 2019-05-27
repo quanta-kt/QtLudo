@@ -1,12 +1,13 @@
 #include <Pawn.h>
 
+#include <QString>
+#include <QDebug>
+
 #include <Board.h>
 #include <PlayerColor.h>
 #include <GameWindow.h>
-
+#include <ValueError.h>
 #include <paint_helper.h>
-
-#include <QDebug>
 
 Pawn::Pawn(Board* board, PlayerColor color, int id) :
 QPushButton(""), mBoard(board), mColor(color), mId(id), mPos(-1) {
@@ -74,13 +75,15 @@ bool Pawn::hasReachedDestination() {
 
 void Pawn::changePosition(int rel) {
     if(rel > DEST || rel < HOME)
-        throw std::string {"Pawn::goto(int) : Invalid move! rel == "} + std::to_string(rel);
+        ValueError::raise_new(QString("Pawn::goto(int) : Invalid move! rel == ").arg(rel));
+
     this->mPos = rel;
 }
 
 void Pawn::moveForward(int steps) {
     if(this->mPos + steps > DEST || steps < 1 || steps > 6)
-        throw std::string {"Pawn::moveForward(int) : Invalid move! step == "} + std::to_string(steps);
+        ValueError::raise_new(QString("Pawn::moveForward(int) : Invalid move! step == ")
+            .arg(steps));
     this->changePosition(this->mPos + steps);
 }
 
