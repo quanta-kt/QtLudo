@@ -130,9 +130,9 @@ namespace painthelp {
 
     QRect getPawnGeometry(QRect cellRect) {
         return {
-            cellRect.x() + (GameWindow::CELL_SIZE/2) - (GameWindow::PAWN_SIZE / 2),
-            cellRect.y() + (GameWindow::CELL_SIZE/2) - (GameWindow::PAWN_SIZE / 2),
-            GameWindow::PAWN_SIZE, GameWindow::PAWN_SIZE
+            cellRect.x(),
+            cellRect.y(),
+            GameWindow::CELL_SIZE, GameWindow::CELL_SIZE
         };
     }
 

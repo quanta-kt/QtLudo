@@ -1,6 +1,5 @@
 #include <Pawn.h>
 
-#include <QString>
 #include <QDebug>
 
 #include <Board.h>
@@ -9,44 +8,26 @@
 #include <ValueError.h>
 #include <paint_helper.h>
 
+const qreal Pawn::GLOW_SCALE = 0.25;
+
 Pawn::Pawn(Board* board, PlayerColor color, int id) :
-QPushButton(""), mBoard(board), mColor(color), mId(id), mPos(-1) {
+mBoard(board), mColor(color), mId(id), mPos(-1) {
 
-    this->resize(GameWindow::PAWN_SIZE, GameWindow::PAWN_SIZE);
-
-    QPalette palette = this->palette();
-    switch (color) {
-        case PlayerColor::RED:
-            palette.setColor(QPalette::Button, GameWindow::COLOR_RED);
-            break;
-        case PlayerColor::YELLOW:
-            palette.setColor(QPalette::Button, GameWindow::COLOR_YELLOW);
-            break;
-        case PlayerColor::BLUE:
-            palette.setColor(QPalette::Button, GameWindow::COLOR_BLUE);
-            break;
-        case PlayerColor::GREEN:
-            palette.setColor(QPalette::Button, GameWindow::COLOR_GREEN);
-            break;
-    } this->setPalette(palette);
+    //This is not the drawing size (refer to paintEvent())
+    //this->setFixedSize(GameWindow::CELL_SIZE, GameWindow::CELL_SIZE);
 
     /*This line uses a slightly cunning  way to get the move positions
      *getPawnHomePos returns the cordinates by the color and index (1~4)
      *index is extracted using id of the pawn as the ids are sure to be in sequence*/
     this->setGeometry(painthelp::getPawnHomePosGeometry(color, ((id+1) % 4) + 1));
-
-    QObject::connect(this, &QPushButton::clicked, this, [this]() {
-        qInfo() << "Pawn::clicked() : emiting visualClicked(this)";
-        emit this->visualClicked(this);
-    });
 }
 
 Pawn::~Pawn() {}
 
 void Pawn::attatchWindow(GameWindow *w) {
     this->setParent(w);
-    QObject::connect(this, SIGNAL(visualClicked(Pawn*)), w, SLOT(pawnChosen(Pawn*)));
-    QObject::connect(this, SIGNAL(clashed(Pawn*)), w, SLOT(pawnClashed(Pawn*)));
+    QObject::connect(this, &Pawn::visualClicked, w, &GameWindow::pawnChosen);
+    QObject::connect(this, &Pawn::clashed, w, &GameWindow::pawnClashed);
 }
 
 int Pawn::getRelPosition() {
@@ -93,4 +74,89 @@ void Pawn::goBackHome(bool clash) {
         emit clashed(this);
     else
         this->changePosition(HOME);
+}
+
+void Pawn::setGlow(qreal glow)  {
+    if(glow < 0) {
+        mGlow = 0;
+    } else if(glow > 1) {
+        mGlow = 1;
+    } else {
+        mGlow = glow;
+    }
+
+    repaint();
+}
+
+qreal Pawn::getGlow() {
+    return mGlow;
+}
+
+void Pawn::setEnabled(bool state) {
+    QWidget::setEnabled(state);
+
+    if(glowEffect != nullptr) {
+        delete glowEffect;
+        glowEffect = nullptr;
+    }
+
+    if(state) { //Play animation
+        glowEffect = new QPropertyAnimation(this, "glow", this);
+        glowEffect->setStartValue(0);
+        glowEffect->setKeyValueAt(0.5, 1);
+        glowEffect->setEndValue(0);
+        glowEffect->setLoopCount(-1);
+        glowEffect->setDuration(GLOW_DURATION);
+        glowEffect->start();
+
+    } else
+        setGlow(0);
+}
+
+void Pawn::paintEvent(QPaintEvent*) {
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    painter.setPen(QPen(
+        GameWindow::STROKE_COLOR,
+        GameWindow::STROKE_WIDTH
+    ));
+
+    QColor color {};
+    switch (mColor) {
+        case PlayerColor::RED:
+            color = GameWindow::COLOR_RED;
+            break;
+        case PlayerColor::YELLOW:
+            color = GameWindow::COLOR_YELLOW;
+            break;
+        case PlayerColor::BLUE:
+            color = GameWindow::COLOR_BLUE;
+            break;
+        case PlayerColor::GREEN:
+            color = GameWindow::COLOR_GREEN;
+            break;
+    }
+
+    painter.setBrush(color);
+    QRect r = this->rect();
+
+    qreal scale = ((qreal) GameWindow::PAWN_SIZE / (qreal) GameWindow::CELL_SIZE) + (getGlow() * GLOW_SCALE);
+
+    painter.translate(
+        ((GameWindow::CELL_SIZE) - (r.width() * scale)) / 2,
+        ((GameWindow::CELL_SIZE) - (r.width() * scale)) / 2
+    );
+
+    painter.drawEllipse(
+        0,
+        0,
+        r.width() * scale,
+        r.width() * scale
+    );
+}
+
+void Pawn::mousePressEvent(QMouseEvent*) {
+    emit visualClicked(this);
 }

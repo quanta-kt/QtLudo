@@ -25,7 +25,7 @@ const QColor GameWindow::COLOR_GREEN_LIGHT = QColor (153,235,148);
 GameWindow::GameWindow() :
 players_count {4}, mGame {new Game(players_count)}, mBoard {mGame->getGameBoard()},
 state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
-dice {new Dice(nullptr, STROKE_WIDTH, 6)}, hintLabel {new QLabel()} {
+dice {new Dice(nullptr, 6)}, hintLabel {new QLabel()} {
 
     dice->setVisualSize(DICE_SIZE);
     hintLabel->setFixedHeight(CELL_SIZE);
@@ -57,8 +57,6 @@ dice {new Dice(nullptr, STROKE_WIDTH, 6)}, hintLabel {new QLabel()} {
     }
 
     updateUi();
-
-    qDebug() << footer->x() << footer->y() << hintLabel->size().height();
 }
 
 GameWindow::~GameWindow() {
@@ -124,6 +122,8 @@ void GameWindow::updateUi() {
 
     } else if (state == ANIMATING) {
         hintLabel->setText(QString(""));
+        for (auto p : mBoard->getAllPawns())
+            p->setEnabled(false);
         dice->setEnabled(false);
 
     } else
@@ -183,7 +183,16 @@ void GameWindow::diceAnimationFinished() {
 
     if(playables.size() == 0) {
         mGame->changeCurrentPlayer(); //We got no pawns worth moving
-        state = ROLLING;
+        //But we need to wait for a second!
+
+        QTimer *timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, this, [timer, this](){
+            this->updateUi();
+            delete timer; //No need to stop it, just delete it
+        });
+        timer->start(700);
+        this->state = ROLLING;
+        return; //It makes it look like we're still animating, but it's just a small pause between dice rollings
 
     } else if(playables.size() == 1) { //Only a singal move available, rather not ask for it
         pawnChosen(playables[0]); //Auto choosen
@@ -193,6 +202,7 @@ void GameWindow::diceAnimationFinished() {
             p->setEnabled(true);
             p->raise(); //So that it is visible
         }
+
         state = MOVING;
     }
 
@@ -211,7 +221,6 @@ void GameWindow::movePawnVisual(Pawn *p, int newrel) {
     qInfo() << "GameWindow::movePawnVisual()";
 
     if(p->isAtHome()) {
-        qDebug() << "GameWindow::movePawnVisual : p->isAtHome() == true  newrel == " << newrel;
 
         QRect geom = painthelp::getPawnGeometry(Board::getPawnCoordinates(
             p->getColor(), newrel

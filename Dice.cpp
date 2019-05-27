@@ -8,8 +8,8 @@
 
 const QColor Dice::COLOR_DICE_SECONDARY = QColor (57, 60, 63);
 
-Dice::Dice(QWidget *parent, qreal stroke_width, unsigned int init_val) :
-QWidget(parent), stroke_width(stroke_width), current_value(init_val) {}
+Dice::Dice(QWidget *parent, unsigned int init_val) :
+QWidget(parent), current_value(init_val) {}
 
 Dice::~Dice() {}
 
@@ -92,12 +92,18 @@ void Dice::paintEvent(QPaintEvent*) {
     /* Extra space (half of border width) left for outline,
      * this causes improvements in graphics rendering */
     outline.addRoundedRect(
-        QRectF(QPointF(stroke_width / 2, stroke_width / 2),
-        QPoint(this->getVisualSize() - stroke_width / 2, this->getVisualSize() - stroke_width / 2)),
+        QRectF(
+            QPointF(
+                GameWindow::STROKE_WIDTH / 2.0,
+                GameWindow::STROKE_WIDTH / 2.0),
+            QPointF(
+                this->getVisualSize() - (GameWindow::STROKE_WIDTH / 2.0),
+                this->getVisualSize() - (GameWindow::STROKE_WIDTH / 2.0)
+            )),
         10, 10
     );
 
-    QPen pen(COLOR_DICE_SECONDARY, 2);
+    QPen pen(COLOR_DICE_SECONDARY, GameWindow::STROKE_WIDTH);
 
     painter.setPen(pen);
     painter.setBrush(backColor);

@@ -1,23 +1,31 @@
 #ifndef PAWN_H
 #define PAWN_H
 
-#include <string>
-
 #include <QPoint>
 #include <QRect>
-#include <QPushButton>
+#include <QWidget>
+#include <QPaintEvent>
+#include <QString>
+#include <QPropertyAnimation>
 
 class Board;
 class GameWindow;
 enum class PlayerColor;
 
-class Pawn : public QPushButton {
+class Pawn : public QWidget {
     Q_OBJECT
+    Q_PROPERTY(qreal glow READ getGlow WRITE setGlow) //Proportion of glow (ranging from 0 to 1)
 public:
     //Home (start) position value for relative position of the pawn
     static const int HOME = -1;
     //Destination position value for relative position of the pawn
     static const int DEST = 56;
+
+    //Duration of one glow cycle (expand and condense)
+    static const int GLOW_DURATION = 700;
+
+    //Scale of glowing (in range 0 to 1)
+    static const qreal GLOW_SCALE;
 
     //Constructor: Should NOT be used externally (outside the library)
     //board - Pointer to the board which will hold the pawn
@@ -61,6 +69,17 @@ public:
      * clash : is it due to a clash? */
     void goBackHome(bool clash = true);
 
+    /*Setter for glow property. (refer to glow property declaration)*/
+    void setGlow(qreal glow);
+
+    /*Getter for the glow property*/
+    qreal getGlow();
+
+    /* Sets usability of pawn. (i.e if it can be clicked)
+     * If set to true, it also starts a glow animation which is stopped
+     * when the function is called with a false value */
+    void setEnabled(bool enabled);
+
 signals:
     /* Triggered when the visual eliment for the the pawn has been clicked. This
      * should happen when the player chooses his pawn to move.
@@ -76,6 +95,12 @@ private:
     PlayerColor mColor;
     unsigned int mId;
     int mPos; //The relative position
+    qreal mGlow {0}; //current glow proportion
+
+    QPropertyAnimation *glowEffect {nullptr}; //Glow animation
+
+    void paintEvent(QPaintEvent*);
+    void mousePressEvent(QMouseEvent*);
 };
 
 #endif //Pawn.h

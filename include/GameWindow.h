@@ -14,6 +14,7 @@
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
 #include <QEasingCurve>
+#include <QTimer>
 
 class Game;
 class Board;
@@ -51,10 +52,10 @@ public:
     static const int CELL_SIZE = 40;
 
     //guider-dot size
-    static const int GUIDER_DOT_SIZE = 8;
+    static const int GUIDER_DOT_SIZE = 4;
 
     //Pawn visual size
-    static const int PAWN_SIZE = 26;
+    static const int PAWN_SIZE = 25;
 
     //Dice size
     static const int DICE_SIZE = 50;

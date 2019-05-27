@@ -32,7 +32,7 @@ public:
     /* The constructor
      * init_val: the initial value to show on the dice
      * stroke_width: graphical width of the stroke */
-    explicit Dice(QWidget *parent = nullptr, qreal stroke_width = 2, unsigned int init_val = 3);
+    explicit Dice(QWidget *parent = nullptr, unsigned int init_val = 3);
 
     ~Dice();
 
@@ -67,7 +67,6 @@ signals:
     void clicked();
 
 private:
-    qreal stroke_width {};
     unsigned int current_value {};
     QColor backColor {};
     qreal size {};
