@@ -11,8 +11,8 @@
 Board::Board(unsigned int players) :
 mPlayers(players) {
 
-    /* Initialize the player vector
-     * NOTE : Fall-through is intended here and is not a mistake (Supress or ignore compiler warnings) */
+    /* Initialize the player vector */
+    #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
     switch(players) {
         case 4:
             mPawns.append(new Pawn(this, PlayerColor::GREEN, 0));
@@ -39,6 +39,8 @@ mPlayers(players) {
         default:
             ValueError::raise_new(QString("Invalid number of players. Expected value \
             between 2 to 4 but got %1").arg(players));
+
+        #pragma GCC diagnostic warning "-Wimplicit-fallthrough"
     }
 }
 
@@ -71,7 +73,9 @@ QPoint Board::getPawnCoordinates(PlayerColor color, unsigned int relpos) {
         default:
             ValueError::raise_new(QString("Board::getPawnCoordinates(PlayerColor, int) : Invalid PlayerColor"));
         }
+    #pragma GCC diagnostic ignored "-Wreturn-type"
 }
+#pragma GCC diagnostic warning "-Wreturn-type"
 
 /* Returns the coordinates of the pawn passed by pointer. Pawn is not required to be on board
  * This should not be called when the pawn is at home */

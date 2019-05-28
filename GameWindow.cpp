@@ -23,10 +23,14 @@ const QColor GameWindow::COLOR_BLUE_LIGHT = QColor (102,212,224);
 const QColor GameWindow::COLOR_GREEN_LIGHT = QColor (153,235,148);
 
 GameWindow::GameWindow(unsigned int players_count) :
-mGame {new Game(players_count)}, mBoard {mGame->getGameBoard()},
-state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
-dice {new Dice(nullptr, 6)}, hintLabel {new QLabel()},
-mScreen(new GameScreen(this)) {
+mGame {new Game(players_count)},
+mBoard {mGame->getGameBoard()},
+state {ROLLING},
+mScreen (new GameScreen(this)),
+footer {new QWidget(this)},
+footerLayout {new QVBoxLayout()},
+dice {new Dice(nullptr, 6)},
+hintLabel {new QLabel()} {
 
     this->setCentralWidget(this->mScreen);
 
@@ -101,7 +105,9 @@ QString GameWindow::getUserName(PlayerColor color) {
         default:
             ValueError::raise_new(QString("GameWindow::getUserName(PlayerColor) : Invalid value of PlayerColor!"));
     }
+    #pragma GCC diagnostic ignored "-Wreturn-type"
 }
+#pragma GCC diagnostic warning "-Wreturn-type"
 
 void GameWindow::updateUi() {
     qInfo() << "\n\n updateUi called**********";

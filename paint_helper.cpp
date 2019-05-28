@@ -126,7 +126,9 @@ namespace painthelp {
                 ValueError::raise_new(QString("paint_helper.cpp:getPawnHomePos : \
                 Critical Error (no enum value fell for a switch)"));
         }
+        #pragma GCC diagnostic ignored "-Wreturn-type"
     }
+    #pragma GCC diagnostic warning "-Wreturn-type"
 
     /* Returns the geometry that a pawn is supposed to have according to the
      * cell it is in right now. Currently, it has same effect as calling 'getCellRect'
