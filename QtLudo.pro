@@ -25,7 +25,7 @@ FORMS += welcome.ui about.ui
 
 HEADERS += include/Board.h include/PlayerColor.h include/Pawn.h include/Game.h \
 include/GameWindow.h include/paint_helper.h include/Path.h include/Dice.h \
-include/ValueError.h include/GameScreen.h
+include/ValueError.h include/GameScreen.h include/About.h
 
 SOURCES += Pawn.cpp Board.cpp Game.cpp GameWindow.cpp Main.cpp paint_helper.cpp \
-Path.cpp Dice.cpp ValueError.cpp GameScreen.cpp
+Path.cpp Dice.cpp ValueError.cpp GameScreen.cpp About.cpp
