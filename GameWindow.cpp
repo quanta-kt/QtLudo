@@ -9,6 +9,7 @@
 #include <Dice.h>
 #include <paint_helper.h>
 #include <ValueError.h>
+#include <About.h>
 
 const QColor GameWindow::COLOR_RED = QColor (249,94,95);
 const QColor GameWindow::COLOR_YELLOW = QColor (255,238,103);
