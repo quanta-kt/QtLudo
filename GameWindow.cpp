@@ -22,8 +22,8 @@ const QColor GameWindow::COLOR_YELLOW_LIGHT = QColor (255,252,151);
 const QColor GameWindow::COLOR_BLUE_LIGHT = QColor (102,212,224);
 const QColor GameWindow::COLOR_GREEN_LIGHT = QColor (153,235,148);
 
-GameWindow::GameWindow() :
-players_count {4}, mGame {new Game(players_count)}, mBoard {mGame->getGameBoard()},
+GameWindow::GameWindow(unsigned int players_count) :
+mGame {new Game(players_count)}, mBoard {mGame->getGameBoard()},
 state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
 dice {new Dice(nullptr, 6)}, hintLabel {new QLabel()} {
 
@@ -302,6 +302,33 @@ void GameWindow::paintEvent(QPaintEvent*) {
 
     drawHomes(painter);
     drawGuidePaths(painter);
+}
+
+void GameWindow::closeEvent(QCloseEvent* event) {
+
+    QMessageBox dialog;
+    dialog.setIcon(QMessageBox::Question);
+    dialog.setText("Confirm exit");
+    dialog.setInformativeText("Would you like to save the game before exiting?");
+
+    dialog.addButton(QMessageBox::Save);
+    dialog.addButton(QMessageBox::Discard);
+    dialog.addButton(QMessageBox::Cancel);
+
+    int ret = dialog.exec();
+
+    switch (ret) {
+        case QMessageBox::Cancel:
+            event->ignore(); //Do nothing
+        case QMessageBox::Save:
+            //TODO: Open save dialog here
+            event->accept();
+            emit exit();
+            break;
+        case QMessageBox::Discard:
+            event->accept();
+            break;
+    }
 }
 
 //Draws homes for all players

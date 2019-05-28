@@ -15,6 +15,7 @@
 #include <QParallelAnimationGroup>
 #include <QEasingCurve>
 #include <QTimer>
+#include <QMessageBox>
 
 class Game;
 class Board;
@@ -73,7 +74,7 @@ public:
     static const int DICE_SHAKE_DISTANCE = 25;
 
     //Constructor and destructor
-    explicit GameWindow();
+    explicit GameWindow(unsigned int players_count);
     ~GameWindow();
 
     /*Returns a user-friendly string representation of user name*/
@@ -82,8 +83,10 @@ public:
     /*Properly updates the UI according to the value of `state` and current player*/
     void updateUi();
 
-protected:
-    void paintEvent(QPaintEvent *e);
+signals:
+    /* Called when game has exit, after completing all the events on close.
+     * Memory held by this window must be freed here */
+    void exit();
 
 public slots:
     void rollDiceClicked();
@@ -125,5 +128,9 @@ private:
     //Just helper functions
     void drawHomes(QPainter &painter);
     void drawGuidePaths(QPainter &painter);
+
+protected:
+    void paintEvent(QPaintEvent*);
+    void closeEvent(QCloseEvent*);
 };
 #endif //GameWindow.h

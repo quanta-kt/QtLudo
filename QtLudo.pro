@@ -20,5 +20,7 @@ CONFIG += debug
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
+RESOURCES += res/resources.qrc
+FORMS += welcome.ui about.ui
 HEADERS += include/Board.h include/PlayerColor.h include/Pawn.h include/Game.h include/GameWindow.h include/paint_helper.h include/Path.h include/Dice.h include/ValueError.h
 SOURCES += Pawn.cpp Board.cpp Game.cpp GameWindow.cpp Main.cpp paint_helper.cpp Path.cpp Dice.cpp ValueError.cpp

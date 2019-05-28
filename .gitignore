@@ -3,6 +3,9 @@ include/.directory
 extra/*
 .fuse_hidden*
 
+qrc_*.cpp
+ui_*.h
+
 *.o
 moc_*.o
 moc_*.cpp
