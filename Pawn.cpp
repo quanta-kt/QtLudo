@@ -25,7 +25,7 @@ mBoard(board), mColor(color), mId(id), mPos(-1) {
 Pawn::~Pawn() {}
 
 void Pawn::attatchWindow(GameWindow *w) {
-    this->setParent(w);
+    this->setParent(w->centralWidget());
     QObject::connect(this, &Pawn::visualClicked, w, &GameWindow::pawnChosen);
     QObject::connect(this, &Pawn::clashed, w, &GameWindow::pawnClashed);
 }

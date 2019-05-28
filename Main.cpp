@@ -13,6 +13,8 @@
 #include "ui_welcome.h"
 #include "ui_about.h"
 
+#include <paint_helper.h>
+
 GameWindow *gameWin;
 
 void aboutClicked() {
@@ -71,6 +73,12 @@ int main(int argc, char *argv[]) {
     QObject::connect(ui.aboutButton, &QPushButton::clicked, &welcomeWindow, [](){
         aboutClicked();
     });
+
+    //Test
+    QRect cr = painthelp::getCellRect(0,0);
+    qDebug() << cr.x() << cr.y();
+    QRect g = painthelp::getPawnGeometry(cr);
+    qDebug() << g.x() << g.y();
 
     return app.exec();
 }

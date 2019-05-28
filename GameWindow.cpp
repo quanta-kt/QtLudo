@@ -25,7 +25,23 @@ const QColor GameWindow::COLOR_GREEN_LIGHT = QColor (153,235,148);
 GameWindow::GameWindow(unsigned int players_count) :
 mGame {new Game(players_count)}, mBoard {mGame->getGameBoard()},
 state {ROLLING}, footer {new QWidget(this)}, footerLayout {new QVBoxLayout()},
-dice {new Dice(nullptr, 6)}, hintLabel {new QLabel()} {
+dice {new Dice(nullptr, 6)}, hintLabel {new QLabel()},
+mScreen(new GameScreen(this)) {
+
+    this->setCentralWidget(this->mScreen);
+
+    //Setup menu bar
+    QMenuBar *menuBar = this->menuBar();
+    QMenu *gameMenu = menuBar->addMenu("&Game");
+    QAction *saveAction = gameMenu->addAction(QIcon::fromTheme("file-save"), "&Save");
+    QAction *loadAction = gameMenu->addAction(QIcon::fromTheme("file-save"), "&Load");
+    gameMenu->addSeparator();
+    QAction *aboutAction = gameMenu->addAction(QIcon::fromTheme("file-save"), "&About");
+    QAction *exitAction = gameMenu->addAction(QIcon::fromTheme("file-save"), "&Exit");
+    connect(saveAction, &QAction::triggered, this, &GameWindow::saveRequested);
+    connect(loadAction, &QAction::triggered, this, &GameWindow::loadRequested);
+    connect(aboutAction, &QAction::triggered, this, &GameWindow::aboutRequested);
+    connect(exitAction, &QAction::triggered, this, &GameWindow::exitRequested);
 
     dice->setVisualSize(DICE_SIZE);
     hintLabel->setFixedHeight(CELL_SIZE);
@@ -43,7 +59,7 @@ dice {new Dice(nullptr, 6)}, hintLabel {new QLabel()} {
     footerLayout->addWidget(hintLabel, 0, Qt::AlignCenter);
     footer->setLayout(footerLayout);
 
-    this->setFixedSize(
+    this->mScreen->setFixedSize(
         (BOARD_BOUND * 2) + (CELL_SIZE * 15) + footer->width(), //Extra space for interaction widget,
         (BOARD_BOUND * 2) + (CELL_SIZE * 15)
     );
@@ -65,6 +81,8 @@ GameWindow::~GameWindow() {
     delete footerLayout;
     delete footer;
     delete mGame;
+
+    delete mScreen;
 }
 
 QString GameWindow::getUserName(PlayerColor color) {
@@ -278,30 +296,20 @@ void GameWindow::pawnAnimationFinished() {
     updateUi();
 }
 
-void GameWindow::paintEvent(QPaintEvent*) {
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
+void GameWindow::saveRequested() {
 
-    QBrush backBrush (BG_COLOR);
-    painter.setBrush(backBrush);
+}
 
-    QRect outer(BOARD_BOUND, BOARD_BOUND, CELL_SIZE * 15, CELL_SIZE * 15);
-    painter.drawRect(outer);
+void GameWindow::loadRequested() {
 
-    painter.setPen(QPen(QBrush(STROKE_COLOR), STROKE_WIDTH));
+}
 
-    //Printing the grids (Like some little kid's math notebook, lmao!)
-    for (int i = 0; i < 15; i++) {
-        for (int j = 0; j < 15; j++) {
-            QRect g (BOARD_BOUND + (i * CELL_SIZE), BOARD_BOUND + (j * CELL_SIZE), CELL_SIZE, CELL_SIZE);
-            painter.drawRect(g);
-        }
-    }
+void GameWindow::aboutRequested() {
 
-    painter.drawRect(painthelp::getDestRect());
+}
 
-    drawHomes(painter);
-    drawGuidePaths(painter);
+void GameWindow::exitRequested() {
+
 }
 
 void GameWindow::closeEvent(QCloseEvent* event) {
@@ -320,6 +328,7 @@ void GameWindow::closeEvent(QCloseEvent* event) {
     switch (ret) {
         case QMessageBox::Cancel:
             event->ignore(); //Do nothing
+            break;
         case QMessageBox::Save:
             //TODO: Open save dialog here
             event->accept();
@@ -328,77 +337,5 @@ void GameWindow::closeEvent(QCloseEvent* event) {
         case QMessageBox::Discard:
             event->accept();
             break;
-    }
-}
-
-//Draws homes for all players
-void GameWindow::drawHomes(QPainter &painter) {
-    QBrush redBrush (COLOR_RED);
-    painter.setBrush(redBrush);
-    painter.drawRect(painthelp::getRedHomeRect());
-
-    QBrush yellowBrush (COLOR_YELLOW);
-    painter.setBrush(yellowBrush);
-    painter.drawRect(painthelp::getYellowHomeRect());
-
-    QBrush blueBrush (COLOR_BLUE);
-    painter.setBrush(blueBrush);
-    painter.drawRect(painthelp::getBlueHomeRect());
-
-    QBrush greenBrush (COLOR_GREEN);
-    painter.setBrush(greenBrush);
-    painter.drawRect(painthelp::getGreenHomeRect());
-
-    //Draw four white circles on each home which holds the pawns
-    painter.setBrush(QBrush(BG_COLOR));
-    for (auto e : painthelp::getHomeCircleRects())
-        painter.drawEllipse(e);
-}
-
-
-//Colors some proper cells to guide the pawns
-void GameWindow::drawGuidePaths(QPainter &painter) {
-    QPoint redg {1, 6};
-    painter.setBrush(COLOR_RED);
-    painter.drawEllipse(painthelp::getCellRect(redg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-    redg = painthelp::pointBelow(redg);
-    painter.drawEllipse(painthelp::getCellRect(redg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-
-    for (int i = 0; i < 4; i++) {
-        redg = painthelp::pointRight(redg);
-        painter.drawEllipse(painthelp::getCellRect(redg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-    }
-
-    QPoint yellowg {8, 1};
-    painter.setBrush(COLOR_YELLOW);
-    painter.drawEllipse(painthelp::getCellRect(yellowg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-    yellowg = painthelp::pointLeft(yellowg);
-    painter.drawEllipse(painthelp::getCellRect(yellowg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-
-    for (int i = 0; i < 4; i++) {
-        yellowg = painthelp::pointBelow(yellowg);
-        painter.drawEllipse(painthelp::getCellRect(yellowg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-    }
-
-    QPoint blueg {13, 8};
-    painter.setBrush(COLOR_BLUE);
-    painter.drawEllipse(painthelp::getCellRect(blueg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-    blueg = painthelp::pointAbove(blueg);
-    painter.drawEllipse(painthelp::getCellRect(blueg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-
-    for (int i = 0; i < 4; i++) {
-        blueg = painthelp::pointLeft(blueg);
-        painter.drawEllipse(painthelp::getCellRect(blueg).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-    }
-
-    QPoint greeng {6, 13};
-    painter.setBrush(COLOR_GREEN);
-    painter.drawEllipse(painthelp::getCellRect(greeng).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-    greeng = painthelp::pointRight(greeng);
-    painter.drawEllipse(painthelp::getCellRect(greeng).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
-
-    for (int i = 0; i < 4; i++) {
-        greeng = painthelp::pointAbove(greeng);
-        painter.drawEllipse(painthelp::getCellRect(greeng).center(), GUIDER_DOT_SIZE, GUIDER_DOT_SIZE);
     }
 }

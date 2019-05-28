@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QObject>
+#include <QMainWindow>
 #include <QWidget>
 #include <QPaintEvent>
 #include <QPainter>
@@ -16,6 +17,11 @@
 #include <QEasingCurve>
 #include <QTimer>
 #include <QMessageBox>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+
+#include <GameScreen.h>
 
 class Game;
 class Board;
@@ -23,7 +29,7 @@ class Pawn;
 class Dice;
 enum class PlayerColor;
 
-class GameWindow : public QWidget {
+class GameWindow : public QMainWindow {
     Q_OBJECT;
 public:
     /* Defines game state.
@@ -89,12 +95,17 @@ signals:
     void exit();
 
 public slots:
-    void rollDiceClicked();
+    /* Called when a pawn has clashed and needs to go back home
+    * pawn: the pawn which is to be sent home */
+    void pawnClashed(Pawn *pawn);
+
+    /* Called when a pawn visual is clicked upon and enabled */
     void pawnChosen(Pawn *p);
 
-    /* Called when a pawn has clashed and needs to go back home
-     * pawn: the pawn which is to be sent home */
-    void pawnClashed(Pawn *pawn);
+    /* Called when dice visual is clicked */
+    void rollDiceClicked();
+
+private slots:
 
     /* Called when the pawn visual animation is finished */
     void pawnAnimationFinished();
@@ -102,12 +113,26 @@ public slots:
     /* Called when the dice roll animation is finished */
     void diceAnimationFinished();
 
+    /* Called when user chooses to save the game */
+    void saveRequested();
+
+    /* Called when user wants to load a saved game */
+    void loadRequested();
+
+    /* Called when user clicks 'about' action from menu bar */
+    void aboutRequested();
+
+    /* Called when user asks for exiting game through menu bar */
+    void exitRequested();
+
 private:
     unsigned int players_count {}; //No of players
     Game *mGame {}; //current game
     Board *mBoard {};
     GameState state {};
     Pawn* currentPawn {}; //Stores pawn which is currently playing (for use of pawnAnimationFinished())
+
+    GameScreen *mScreen {}; //Central widget
 
     QWidget *footer {}; //Widget for user-interaction
     QVBoxLayout *footerLayout {}; //Layout for footer
@@ -125,12 +150,7 @@ private:
     //Animates the dice before showing of it's value
     void animateDiceRoll();
 
-    //Just helper functions
-    void drawHomes(QPainter &painter);
-    void drawGuidePaths(QPainter &painter);
-
 protected:
-    void paintEvent(QPaintEvent*);
     void closeEvent(QCloseEvent*);
 };
 #endif //GameWindow.h

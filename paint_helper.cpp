@@ -128,6 +128,10 @@ namespace painthelp {
         }
     }
 
+    /* Returns the geometry that a pawn is supposed to have according to the
+     * cell it is in right now. Currently, it has same effect as calling 'getCellRect'
+     * but MAY differ in future due to modifications. The size of the pawn is
+     * handled internally by Pawn class itself */
     QRect getPawnGeometry(QRect cellRect) {
         return {
             cellRect.x(),
