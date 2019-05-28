@@ -9,24 +9,16 @@
 
 #include <GameWindow.h>
 #include <ValueError.h>
+#include <About.h>
 
 #include "ui_welcome.h"
-#include "ui_about.h"
 
 #include <paint_helper.h>
 
 GameWindow *gameWin;
 
 void aboutClicked() {
-    QDialog *dialog = new QDialog{};
-    Ui::AboutDialog aboutDialog {};
-    aboutDialog.setupUi(dialog);
-    dialog->show();
-
-    QObject::connect(dialog, &QDialog::finished, dialog, [dialog]() {
-        delete dialog;
-        qDebug() << "Memory freed";
-    });
+    AboutDialog::show();
 }
 
 void loadClicked() {

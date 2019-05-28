@@ -311,11 +311,11 @@ void GameWindow::loadRequested() {
 }
 
 void GameWindow::aboutRequested() {
-
+    AboutDialog::show();
 }
 
 void GameWindow::exitRequested() {
-
+    this->close(); //It automatically goes to GameWindow::closeEvent()
 }
 
 void GameWindow::closeEvent(QCloseEvent* event) {
