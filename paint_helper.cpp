@@ -1,6 +1,7 @@
 #include <paint_helper.h>
 
 #include <PlayerColor.h>
+#include <Pawn.h>
 #include <GameWindow.h>
 #include <ValueError.h>
 
@@ -129,6 +130,29 @@ namespace painthelp {
         #pragma GCC diagnostic ignored "-Wreturn-type"
     }
     #pragma GCC diagnostic warning "-Wreturn-type"
+
+    QRect getPawnDestGeometry(PlayerColor color) {
+        QPoint cell;
+        switch (color) {
+            case PlayerColor::RED:
+            cell = {6, 7};
+            break;
+            case PlayerColor::YELLOW:
+            cell = {7, 6};
+            break;
+            case PlayerColor::BLUE:
+            cell = {8, 7};
+            break;
+            case PlayerColor::GREEN:
+            cell = {7, 8};
+            break;
+        }
+        return getCellRect(QPoint(cell));
+    }
+
+    QRect getPawnDestGeometry(Pawn *p) {
+        return getPawnDestGeometry(p->getColor());
+    }
 
     /* Returns the geometry that a pawn is supposed to have according to the
      * cell it is in right now. Currently, it has same effect as calling 'getCellRect'

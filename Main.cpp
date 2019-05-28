@@ -72,5 +72,9 @@ int main(int argc, char *argv[]) {
     QRect g = painthelp::getPawnGeometry(cr);
     qDebug() << g.x() << g.y();
 
-    return app.exec();
+    try {
+        return app.exec();
+    } catch (ValueError *e) {
+        qDebug() << e->why();
+    }
 }

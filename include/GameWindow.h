@@ -107,8 +107,9 @@ public slots:
 
 private slots:
 
-    /* Called when the pawn visual animation is finished */
-    void pawnAnimationFinished();
+    /* Called when the pawn visual animation is finished
+     * p: the Pawn which was animated */
+    void pawnAnimationFinished(Pawn*);
 
     /* Called when the dice roll animation is finished */
     void diceAnimationFinished();
@@ -130,7 +131,6 @@ private:
     Game *mGame {}; //current game
     Board *mBoard {};
     GameState state {};
-    Pawn* currentPawn {}; //Stores pawn which is currently playing (for use of pawnAnimationFinished())
 
     GameScreen *mScreen {}; //Central widget
 

@@ -34,6 +34,7 @@ dice {new Dice(nullptr, 6)},
 hintLabel {new QLabel()} {
 
     this->setCentralWidget(this->mScreen);
+    this->setWindowTitle("Ludo Z+");
 
     //Setup menu bar
     QMenuBar *menuBar = this->menuBar();
@@ -111,7 +112,7 @@ QString GameWindow::getUserName(PlayerColor color) {
 #pragma GCC diagnostic warning "-Wreturn-type"
 
 void GameWindow::updateUi() {
-    qInfo() << "\n\n updateUi called**********";
+    qInfo() << "GameWindow::updateUi()";
 
     //Set appropriate color for dice
     switch (mGame->getCurrentPlayer()) {
@@ -157,9 +158,7 @@ void GameWindow::updateUi() {
 
 void GameWindow::rollDiceClicked() {
 
-    mGame->rollDice();
     hintLabel->setText(QString(""));
-
     animateDiceRoll();
 }
 
@@ -201,8 +200,9 @@ void GameWindow::animateDiceRoll() {
 }
 
 void GameWindow::diceAnimationFinished() {
+    qDebug() << "GameWindow::diceAnimationFinished()";
 
-    dice->setValue(mGame->getLastDiceValue());
+    dice->setValue(mGame->rollDice());
 
     QVector<Pawn*> playables = mGame->getPlayablePawns(mGame->getLastDiceValue());
 
@@ -223,10 +223,8 @@ void GameWindow::diceAnimationFinished() {
         pawnChosen(playables[0]); //Auto choosen
 
     } else {
-        for (auto p : playables) {
+        for (auto p : playables)
             p->setEnabled(true);
-            p->raise(); //So that it is visible
-        }
 
         state = MOVING;
     }
@@ -238,7 +236,8 @@ void GameWindow::pawnChosen(Pawn *p) {
     qInfo() << "GameWindow::pawnChosen()";
 
     qDebug() << "mGame->getLastDiceValue()" << mGame->getLastDiceValue();
-    currentPawn = p;
+    qDebug() << "Pawn::getRelPosition() == " << p->getRelPosition();
+    p->raise(); //So that it is visible
     movePawnVisual(p, mGame->predictRel(p, mGame->getLastDiceValue()));
 }
 
@@ -251,7 +250,7 @@ void GameWindow::movePawnVisual(Pawn *p, int newrel) {
             p->getColor(), newrel
         ));
         p->setGeometry(geom);
-        pawnAnimationFinished(); //No animation, so no wait
+        pawnAnimationFinished(p); //No animation, so no wait
         state = ROLLING;
 
     } else {
@@ -264,7 +263,7 @@ void GameWindow::movePawnVisual(Pawn *p, int newrel) {
 }
 
 void GameWindow::animateVisualMovement(Pawn* p, int endRel) {
-    qInfo() << "GameWindow::animateVisualMovement()";
+    qInfo() << "GameWindow::animateVisualMovement() endRel == " << endRel;
 
     if(animationGroup != 0)
         delete animationGroup;
@@ -274,7 +273,13 @@ void GameWindow::animateVisualMovement(Pawn* p, int endRel) {
 
     for (int i = startRel + 1; i <= endRel; i++) {
         QRect iniCell = painthelp::getPawnGeometry(mBoard->getPawnCoordinates(p->getColor(), i-1));
-        QRect destCell = painthelp::getPawnGeometry(mBoard->getPawnCoordinates(p->getColor(), i));
+        QRect destCell;
+
+        if(i == Pawn::DEST)
+            //It's stepping into destination, so...
+            destCell = painthelp::getPawnDestGeometry(p);
+        else
+            destCell = painthelp::getPawnGeometry(mBoard->getPawnCoordinates(p->getColor(), i));
 
         QPropertyAnimation *animation = new QPropertyAnimation (p, "geometry");
         animation->setDuration(ANIMATION_DURATION);
@@ -285,7 +290,7 @@ void GameWindow::animateVisualMovement(Pawn* p, int endRel) {
         animationGroup->addPause(100); //This feels smooth
     }
 
-    connect(animationGroup, &QSequentialAnimationGroup::finished, this, &GameWindow::pawnAnimationFinished);
+    connect(animationGroup, &QSequentialAnimationGroup::finished, this, [this, p](){this->pawnAnimationFinished(p);});
     animationGroup->start();
 }
 
@@ -295,8 +300,8 @@ void GameWindow::pawnClashed(Pawn *p) {
     p->setGeometry(painthelp::getPawnHomePosGeometry(p->getColor(), ((p->getId()+1) % 4) + 1));
 }
 
-void GameWindow::pawnAnimationFinished() {
-    if (!mGame->playMove(currentPawn, mGame->getLastDiceValue()))
+void GameWindow::pawnAnimationFinished(Pawn *p) {
+    if (!mGame->playMove(p, mGame->getLastDiceValue()))
         mGame->changeCurrentPlayer();
 
     state = ROLLING;

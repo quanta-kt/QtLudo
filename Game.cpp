@@ -100,16 +100,24 @@ bool Game::playMove(Pawn* pawn, int diceFace) {
     //Pawn which was hit by this one while moving
     Pawn* toClash {nullptr};
 
-    //If there is only one pawn at this new location, send it back home
-    //This should be done before moving the current pawn
-    QVector<Pawn*> pawnsThere = mBoard->getPawnsAt(
-        mBoard->getPawnCoordinates(
-            pawn->getColor(),
-            futureRel //Our future position
-        )
-    );
-    if(pawnsThere.size() == 1 && pawnsThere[0]->getColor() != pawn->getColor()) {
-        toClash = pawnsThere[0];
+    //This pawn couldn't have been clashed with anybody, because it has reached home
+    if(!pawn->hasReachedDestination()) {
+
+        //If there is only one pawn at this new location, send it back home
+        //This should be done before moving the current pawn
+        QVector<Pawn*> pawnsThere = mBoard->getPawnsAt(
+            mBoard->getPawnCoordinates(
+                pawn->getColor(),
+                futureRel //Our future position
+            )
+        );
+
+        if(pawnsThere.size() == 1 && pawnsThere[0]->getColor() != pawn->getColor()) {
+            toClash = pawnsThere[0];
+            re_turn = true;
+        }
+    } else {
+        //But we do get a turn again,..
         re_turn = true;
     }
 

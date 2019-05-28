@@ -7,6 +7,7 @@
 #include <QRect>
 #include <QPoint>
 
+class Pawn;
 enum class PlayerColor;
 
 /* This namespace provides helper function for drawing board and Pawns.
@@ -48,6 +49,10 @@ namespace painthelp {
 
     //Returns geometry for pawns when at home
     QRect getPawnHomePosGeometry(PlayerColor color, int which);
+
+    //Returns the geometry of pawn when at home
+    QRect getPawnDestGeometry(PlayerColor);
+    QRect getPawnDestGeometry(Pawn*);
 
     //Returns geometry for a pawn visual if placed on 'cellRect'
     QRect getPawnGeometry(QRect cellRect);

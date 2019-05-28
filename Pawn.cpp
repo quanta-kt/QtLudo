@@ -16,10 +16,7 @@ mBoard(board), mColor(color), mId(id), mPos(-1) {
     //This is not the drawing size (refer to paintEvent())
     //this->setFixedSize(GameWindow::CELL_SIZE, GameWindow::CELL_SIZE);
 
-    /*This line uses a slightly cunning  way to get the move positions
-     *getPawnHomePos returns the cordinates by the color and index (1~4)
-     *index is extracted using id of the pawn as the ids are sure to be in sequence*/
-    this->setGeometry(painthelp::getPawnHomePosGeometry(color, ((id+1) % 4) + 1));
+    this->setGeometry(painthelp::getPawnHomePosGeometry(color, this->getIndex()));
 }
 
 Pawn::~Pawn() {}
@@ -40,6 +37,11 @@ PlayerColor Pawn::getColor() {
 
 unsigned int Pawn::getId() {
     return mId;
+}
+
+unsigned int Pawn::getIndex() {
+    //index is extracted using id of the pawn, as the ids are sure to be in sequence
+    return ((this->getId()+1) % 4) + 1;
 }
 
 QPoint Pawn::getPositionOnBoard() {

@@ -57,7 +57,7 @@ QPoint Board::getPawnCoordinates(PlayerColor color, unsigned int relpos) {
 
     if (relpos > Path::MAX_REL)
         ValueError::raise_new(QString("Board::getPawnCoordinates(PlayerColor, unsigned int) \
-        : Invalid value for relpos == ").arg(relpos));
+        : Invalid value for relpos == %1").arg(relpos));
 
     switch (color) {
         case PlayerColor::RED:

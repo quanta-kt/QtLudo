@@ -49,6 +49,9 @@ public:
     //Returns the unique id of the pawn passed at the time of construction
     unsigned int getId();
 
+    //Returns color specific index for the pawn (refered as 'which' in many functions)
+    unsigned int getIndex();
+
     /* Calculates and returns the current position of the pawn on the board
      * based on its relative position as a QPoint */
     QPoint getPositionOnBoard();
