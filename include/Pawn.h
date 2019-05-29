@@ -10,6 +10,7 @@
 
 class Board;
 class GameWindow;
+class SaveGameEngine;
 enum class PlayerColor;
 
 class Pawn : public QWidget {
@@ -30,7 +31,13 @@ public:
     //Constructor: Should NOT be used externally (outside the library)
     //board - Pointer to the board which will hold the pawn
     //color - color of the Pawn, id - unique id for identification
-    Pawn(Board* board, PlayerColor color, int id);
+    Pawn(PlayerColor color, int id);
+
+    //Constructs a pawns and coppies data from save state
+    Pawn(SaveGameEngine *save);
+
+    //Saves data into save state
+    void serializeInto(SaveGameEngine *save);
 
     //Virtual destructor
     virtual ~Pawn();
@@ -94,10 +101,9 @@ signals:
     void clashed(Pawn *p);
 
 private:
-    Board* mBoard;
-    PlayerColor mColor;
-    unsigned int mId;
-    int mPos; //The relative position
+    PlayerColor mColor {};
+    unsigned int mId {};
+    int mPos {}; //The relative position
     qreal mGlow {0}; //current glow proportion
 
     QPropertyAnimation *glowEffect {nullptr}; //Glow animation

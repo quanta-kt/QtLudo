@@ -7,6 +7,7 @@
 #include <QPoint>
 
 class Pawn;
+class SaveGameEngine;
 enum class PlayerColor;
 
 class Board {
@@ -15,8 +16,17 @@ public:
     //Constructor. The players - no. of players playing the game
     Board(unsigned int players);
 
+    //Creates a new instance and coppies the data from save state
+    Board(SaveGameEngine *save);
+
+    //Copies the data to save state
+    void serializeInto(SaveGameEngine *save);
+
     //Virtual destructor
     virtual ~Board();
+
+    //Returns the number of playing game
+    unsigned int getPlayersCount();
 
     //Returns the coordinates of a pawn if it's color and relpos were same as given
     static QPoint getPawnCoordinates(PlayerColor color, unsigned int relpos);
@@ -42,7 +52,7 @@ public:
     Pawn* getPawn(PlayerColor color, unsigned int which);
 
 private:
-    unsigned int mPlayers {}; //Count of players
+    unsigned int players_count {}; //Count of players
     QVector<Pawn*> mPawns {}; //Vector holding pawn handles
 };
 

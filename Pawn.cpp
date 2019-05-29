@@ -5,18 +5,33 @@
 #include <Board.h>
 #include <PlayerColor.h>
 #include <GameWindow.h>
+#include <SaveGameEngine.h>
 #include <ValueError.h>
 #include <paint_helper.h>
 
 const qreal Pawn::GLOW_SCALE = 0.25;
 
-Pawn::Pawn(Board* board, PlayerColor color, int id) :
-mBoard(board), mColor(color), mId(id), mPos(-1) {
+Pawn::Pawn(PlayerColor color, int id) :
+mColor(color), mId(id), mPos(-1) {
 
     //This is not the drawing size (refer to paintEvent())
     //this->setFixedSize(GameWindow::CELL_SIZE, GameWindow::CELL_SIZE);
 
     this->setGeometry(painthelp::getPawnHomePosGeometry(color, this->getIndex()));
+}
+
+Pawn::Pawn(SaveGameEngine *save) {
+    this->mColor = static_cast<PlayerColor>(save->readInt());
+    this->mId = save->readInt();
+    this->mPos = save->readInt();
+    this->mGlow = save->readReal();
+}
+
+void Pawn::serializeInto(SaveGameEngine *save) {
+    save->writeInt(static_cast<int>(this->mColor));
+    save->writeInt(this->mId);
+    save->writeInt(this->mPos);
+    save->writeReal(this->mGlow);
 }
 
 Pawn::~Pawn() {}
@@ -45,7 +60,7 @@ unsigned int Pawn::getIndex() {
 }
 
 QPoint Pawn::getPositionOnBoard() {
-    return mBoard->getPawnCoordinates(this);
+    return Board::getPawnCoordinates(this);
 }
 
 bool Pawn::isAtHome() {

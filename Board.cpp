@@ -6,34 +6,35 @@
 #include <Pawn.h>
 #include <PlayerColor.h>
 #include <Path.h>
+#include <SaveGameEngine.h>
 #include <ValueError.h>
 
 Board::Board(unsigned int players) :
-mPlayers(players) {
+players_count(players) {
 
     /* Initialize the player vector */
     #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
     switch(players) {
         case 4:
-            mPawns.append(new Pawn(this, PlayerColor::GREEN, 0));
-            mPawns.append(new Pawn(this, PlayerColor::GREEN, 1));
-            mPawns.append(new Pawn(this, PlayerColor::GREEN, 2));
-            mPawns.append(new Pawn(this, PlayerColor::GREEN, 3));
+            mPawns.append(new Pawn(PlayerColor::GREEN, 0));
+            mPawns.append(new Pawn(PlayerColor::GREEN, 1));
+            mPawns.append(new Pawn(PlayerColor::GREEN, 2));
+            mPawns.append(new Pawn(PlayerColor::GREEN, 3));
         case 3:
-            mPawns.append(new Pawn(this, PlayerColor::YELLOW, 4));
-            mPawns.append(new Pawn(this, PlayerColor::YELLOW, 5));
-            mPawns.append(new Pawn(this, PlayerColor::YELLOW, 6));
-            mPawns.append(new Pawn(this, PlayerColor::YELLOW, 7));
+            mPawns.append(new Pawn(PlayerColor::YELLOW, 4));
+            mPawns.append(new Pawn(PlayerColor::YELLOW, 5));
+            mPawns.append(new Pawn(PlayerColor::YELLOW, 6));
+            mPawns.append(new Pawn(PlayerColor::YELLOW, 7));
         case 2:
-            mPawns.append(new Pawn(this, PlayerColor::BLUE, 8));
-            mPawns.append(new Pawn(this, PlayerColor::BLUE, 9));
-            mPawns.append(new Pawn(this, PlayerColor::BLUE, 10));
-            mPawns.append(new Pawn(this, PlayerColor::BLUE, 11));
+            mPawns.append(new Pawn(PlayerColor::BLUE, 8));
+            mPawns.append(new Pawn(PlayerColor::BLUE, 9));
+            mPawns.append(new Pawn(PlayerColor::BLUE, 10));
+            mPawns.append(new Pawn(PlayerColor::BLUE, 11));
 
-            mPawns.append(new Pawn(this, PlayerColor::RED, 12));
-            mPawns.append(new Pawn(this, PlayerColor::RED, 13));
-            mPawns.append(new Pawn(this, PlayerColor::RED, 14));
-            mPawns.append(new Pawn(this, PlayerColor::RED, 15));
+            mPawns.append(new Pawn(PlayerColor::RED, 12));
+            mPawns.append(new Pawn(PlayerColor::RED, 13));
+            mPawns.append(new Pawn(PlayerColor::RED, 14));
+            mPawns.append(new Pawn(PlayerColor::RED, 15));
             break;
 
         default:
@@ -44,10 +45,24 @@ mPlayers(players) {
     }
 }
 
+Board::Board(SaveGameEngine *save) {
+    players_count = save->readInt();
+    mPawns = save->getPawns();
+}
+
+void Board::serializeInto(SaveGameEngine *save) {
+    save->writeInt(players_count);
+}
+
 /* Destory all the resources used by the class */
 Board::~Board() {
     for (auto p : mPawns)
         delete p;
+}
+
+//Returns the number of playing game
+unsigned int Board::getPlayersCount() {
+    return players_count;
 }
 
 /* Returns the coordinates of a pawn if it's color and relpos were same as given
@@ -112,9 +127,9 @@ Pawn* Board::getPawnById(unsigned int id) {
 
 /* Returns a vector of pawn pointers matching the given color */
 QVector<Pawn*> Board::getAllPawnsByColor(PlayerColor color) {
-    if(color == PlayerColor::YELLOW && mPlayers == 2)
+    if(color == PlayerColor::YELLOW && players_count == 2)
         ValueError::raise_new(QString("Board::getAllPawnsByColor : Current game does not have YELLOW color"));
-    if(color == PlayerColor::GREEN && mPlayers != 4)
+    if(color == PlayerColor::GREEN && players_count != 4)
         ValueError::raise_new(QString("Board::getAllPawnsByColor : Current game does not have GREEN color"));
 
     QVector<Pawn*> result {};
@@ -129,9 +144,9 @@ QVector<Pawn*> Board::getAllPawnsByColor(PlayerColor color) {
 /* Returns a pointer to the Pawn identified by it's color and index (1~4)
  * Returns the nullptr if the pawn does not exist */
 Pawn* Board::getPawn(PlayerColor color, unsigned int which) {
-    if(color == PlayerColor::YELLOW && mPlayers == 2)
+    if(color == PlayerColor::YELLOW && players_count == 2)
         return nullptr;
-    if(color == PlayerColor::GREEN && mPlayers != 4)
+    if(color == PlayerColor::GREEN && players_count != 4)
         return nullptr;
     if(which > 4)
         return nullptr;

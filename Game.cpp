@@ -5,6 +5,7 @@
 #include <Board.h>
 #include <Pawn.h>
 #include <PlayerColor.h>
+#include <SaveGameEngine.h>
 #include <ValueError.h>
 
 Game::Game(unsigned int players) :
@@ -29,6 +30,31 @@ Game::Game(unsigned int players) :
             currentSequence->push_back(PlayerColor::GREEN);
             break;
     }
+}
+
+Game::Game(SaveGameEngine *save) {
+    this->players_count = save->readInt();
+    
+    this->currentSequence = new QVector<PlayerColor> {};
+    for(unsigned int i = 0; i < players_count; i++)
+        this->currentSequence->append(static_cast<PlayerColor>(save->readInt()));
+    
+    this->current = save->readInt();
+    this->lastDiceValue = save->readInt();
+    
+    this->mBoard = save->getBoard();
+    
+    this->random = QRandomGenerator::securelySeeded();
+}
+
+void Game::serializeInto(SaveGameEngine *save) {
+    save->writeInt(this->players_count);
+    
+    for(auto p : *(this->currentSequence))
+        save->writeInt(static_cast<int>(p));
+    
+    save->writeInt(this->current);
+    save->writeInt(this->lastDiceValue);
 }
 
 Game::~Game() {

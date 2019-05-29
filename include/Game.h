@@ -6,6 +6,7 @@
 
 class Pawn;
 class Board;
+class SaveGameEngine;
 enum class PlayerColor;
 
 class Game {
@@ -17,6 +18,12 @@ public:
 
     /*players: no of players playing the game*/
     Game(unsigned int players);
+    
+    //Creates a new instance and copies data from save state
+    Game(SaveGameEngine *save);
+    
+    //Copies data into save state
+    void serializeInto(SaveGameEngine *save);
 
     /*Deletes and frees ALL the resources used*/
     virtual ~Game();
@@ -58,12 +65,12 @@ public:
     unsigned int getLastDiceValue();
 
 private:
-    unsigned int players_count; //Number of players playing the game
-    Board* mBoard; //Game board
-    QVector<PlayerColor> *currentSequence; //Player Turns sequence
-    unsigned int current; //Current player's index in the sequence
+    unsigned int players_count {}; //Number of players playing the game
+    Board* mBoard {}; //Game board
+    QVector<PlayerColor> *currentSequence {}; //Player Turns sequence
+    unsigned int current {}; //Current player's index in the sequence
     unsigned int lastDiceValue {}; //Stores the value of dice rolled last time
-    QRandomGenerator random; //For randomization of dice
+    QRandomGenerator random {}; //For randomization of dice
 };
 
 #endif //Game.h
