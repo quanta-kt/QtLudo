@@ -25,6 +25,11 @@ Pawn::Pawn(SaveGameEngine *save) {
     this->mId = save->readInt();
     this->mPos = save->readInt();
     this->mGlow = save->readReal();
+
+    if(this->isAtHome())
+        this->setGeometry(painthelp::getPawnHomePosGeometry(mColor, this->getIndex()));
+    else
+        this->setGeometry(painthelp::getPawnGeometry(this));
 }
 
 void Pawn::serializeInto(SaveGameEngine *save) {
@@ -38,6 +43,7 @@ Pawn::~Pawn() {}
 
 void Pawn::attatchWindow(GameWindow *w) {
     this->setParent(w->centralWidget());
+    this->setVisible(true);
     QObject::connect(this, &Pawn::visualClicked, w, &GameWindow::pawnChosen);
     QObject::connect(this, &Pawn::clashed, w, &GameWindow::pawnClashed);
 }
@@ -102,7 +108,7 @@ void Pawn::setGlow(qreal glow)  {
         mGlow = glow;
     }
 
-    repaint();
+    this->update();
 }
 
 qreal Pawn::getGlow() {

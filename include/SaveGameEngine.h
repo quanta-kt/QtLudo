@@ -20,9 +20,11 @@ public:
     virtual ~SaveGameEngine();
 
     //Serializes to a file
-    static SaveGameEngine* serialize(QString filename, QVector<Pawn*> pawns, Board *board, Game *game);
+    static void serialize(QString filename, QVector<Pawn*> pawns, Board *board, Game *game);
 
-    //Deserializes from a file
+    /* Deserializes from a file and returns the state handle constructed on heap
+     * NOTE: This class/function does not holds the ownership of the returned
+     * object */
     static SaveGameEngine* deserialize(QString filename);
 
     //Reads an integer from the stream
@@ -36,7 +38,7 @@ public:
 
     //Writes a qreal to the stream
     void writeReal(qreal r);
-    
+
     Game* getGame();
     Board* getBoard();
     QVector<Pawn*> getPawns();

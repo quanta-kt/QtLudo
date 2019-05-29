@@ -14,14 +14,14 @@ public:
     /* This is a configuration constant.
      * True value means pawn require a six to get out of homes.
      * TODO: This should be under user-control */
-    static constexpr bool SIX_FOR_HOME = true;
+    static constexpr bool SIX_FOR_HOME = false;
 
     /*players: no of players playing the game*/
     Game(unsigned int players);
-    
+
     //Creates a new instance and copies data from save state
     Game(SaveGameEngine *save);
-    
+
     //Copies data into save state
     void serializeInto(SaveGameEngine *save);
 

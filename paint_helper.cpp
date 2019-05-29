@@ -174,6 +174,10 @@ namespace painthelp {
         return getPawnGeometry(pos.x(), pos.y());
     }
 
+    QRect getPawnGeometry(Pawn *p) {
+        return getPawnGeometry(p->getPositionOnBoard());
+    }
+
     //Returns the point adjecent to the given point, lieing below it
     QPoint pointBelow(QPoint p) {
         return QPoint {p.x(), p.y()+1};

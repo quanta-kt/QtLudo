@@ -63,6 +63,9 @@ namespace painthelp {
     //Returns geometry for a pawn visual if placed on cell (cell given point on board)
     QRect getPawnGeometry(QPoint);
 
+    //Returns geometry for the given pawn
+    QRect getPawnGeometry(Pawn *p);
+
     //Returns the point adjecent to the given point, lieing below it
     QPoint pointBelow(QPoint p);
 

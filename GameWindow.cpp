@@ -10,6 +10,7 @@
 #include <paint_helper.h>
 #include <ValueError.h>
 #include <About.h>
+#include <SaveGameEngine.h>
 
 const QColor GameWindow::COLOR_RED = QColor (249,94,95);
 const QColor GameWindow::COLOR_YELLOW = QColor (255,238,103);
@@ -237,6 +238,7 @@ void GameWindow::pawnChosen(Pawn *p) {
 
     qDebug() << "mGame->getLastDiceValue()" << mGame->getLastDiceValue();
     qDebug() << "Pawn::getRelPosition() == " << p->getRelPosition();
+    needs_to_save = true; //Changes made to game
     p->raise(); //So that it is visible
     movePawnVisual(p, mGame->predictRel(p, mGame->getLastDiceValue()));
 }
@@ -245,7 +247,6 @@ void GameWindow::movePawnVisual(Pawn *p, int newrel) {
     qInfo() << "GameWindow::movePawnVisual()";
 
     if(p->isAtHome()) {
-
         QRect geom = painthelp::getPawnGeometry(Board::getPawnCoordinates(
             p->getColor(), newrel
         ));
@@ -309,11 +310,63 @@ void GameWindow::pawnAnimationFinished(Pawn *p) {
 }
 
 void GameWindow::saveRequested() {
+    saveGame();
+}
 
+bool GameWindow::saveGame() {
+    QString filename = QFileDialog::getSaveFileName(this,
+        "Save Game",
+        "",
+        "Ludo Z+ game save (*.lzs)");
+    if(filename == "") //Canceled
+        return false;
+    SaveGameEngine::serialize(filename, mBoard->getAllPawns(), mBoard, mGame);
+    return true;
 }
 
 void GameWindow::loadRequested() {
+    qDebug() << "Load game requested";
 
+    if(this->needs_to_save) {
+
+        QMessageBox dialog {};
+        dialog.setIcon(QMessageBox::Question);
+        dialog.setText("Confirm load");
+        dialog.setInformativeText("Your current game has some unsaved changes. \
+        Are you sure to discard those and load a new game?");
+
+        dialog.addButton(QMessageBox::Yes);
+        dialog.addButton(QMessageBox::No);
+
+        int ret = dialog.exec();
+
+        switch (ret) {
+            case QMessageBox::Yes:
+                break; //Let this game be discarded
+            case QMessageBox::No:
+                return; //Skip loading
+        }
+    }
+
+    QString filename = QFileDialog::getOpenFileName(this,
+        "Load Game",
+        "",
+        "Ludo Z+ game save (*.lzs)");
+    if(filename == "")
+        return; //Canceled
+    SaveGameEngine *saveState = SaveGameEngine::deserialize(filename);
+
+    delete this->mBoard;
+
+    this->mGame = saveState->getGame();
+    this->mBoard = saveState->getBoard();
+    this->state = ROLLING;
+
+    for(auto p : this->mBoard->getAllPawns())
+        p->attatchWindow(this);
+
+    needs_to_save = false;
+    updateUi();
 }
 
 void GameWindow::aboutRequested() {
@@ -325,8 +378,10 @@ void GameWindow::exitRequested() {
 }
 
 void GameWindow::closeEvent(QCloseEvent* event) {
+    if(!needs_to_save)
+        return;
 
-    QMessageBox dialog;
+    QMessageBox dialog {};
     dialog.setIcon(QMessageBox::Question);
     dialog.setText("Confirm exit");
     dialog.setInformativeText("Would you like to save the game before exiting?");

@@ -20,6 +20,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
+#include <QFileDialog>
 
 #include <GameScreen.h>
 
@@ -89,6 +90,10 @@ public:
     /*Properly updates the UI according to the value of `state` and current player*/
     void updateUi();
 
+    /* Creates a dialog for saving file
+     * Returns: true if game was saved, false otherwise */
+    bool saveGame();
+
 signals:
     /* Called when game has exit, after completing all the events on close.
      * Memory held by this window must be freed here */
@@ -140,6 +145,8 @@ private:
     QLabel *hintLabel {}; //Hint text
     QSequentialAnimationGroup *animationGroup {}; //Pawn animation
     QParallelAnimationGroup *diceAnimationGroup {}; //Dice Rolling animation
+
+    bool needs_to_save {false}; //User has unsaved changes if this is true
 
     /*Causes the pawn visual to move*/
     void movePawnVisual(Pawn *p, int oldpos);

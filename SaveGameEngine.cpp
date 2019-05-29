@@ -11,18 +11,18 @@ SaveGameEngine::SaveGameEngine(QFile *file) {
 SaveGameEngine::~SaveGameEngine() {}
 
 //Serializes to a file
-SaveGameEngine* SaveGameEngine::serialize(QString filename, QVector<Pawn*> pawns, Board *board, Game *game) {
+void SaveGameEngine::serialize(QString filename, QVector<Pawn*> pawns, Board *board, Game *game) {
 	QFile file(filename);
     file.open(QIODevice::WriteOnly);
     SaveGameEngine *save = new SaveGameEngine(&file);
-    
+
     *(save->stream) << pawns.size(); //Save it for later use!
     for(auto p : pawns)
         p->serializeInto(save);
     board->serializeInto(save);
     game->serializeInto(save);
-    
-    return save;
+
+    delete save;
 }
 
 //Deserializes from a file
@@ -37,7 +37,7 @@ SaveGameEngine* SaveGameEngine::deserialize(QString filename) {
         save->s_pawns.append(new Pawn(save));
     save->s_board = new Board(save);
     save->s_game = new Game(save);
-    
+
     return save;
 }
 
