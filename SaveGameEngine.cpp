@@ -1,41 +1,74 @@
 #include <SaveGameEngine.h>
 
-SaveGameEngine() {}
+#include <Pawn.h>
+#include <Game.h>
+#include <Board.h>
 
-virtual ~SaveGameEngine() {}
+SaveGameEngine::SaveGameEngine(QFile *file) {
+	stream = new QDataStream(file);
+}
+
+SaveGameEngine::~SaveGameEngine() {}
 
 //Serializes to a file
-static SaveGameEngine* serialize(QString filename, Game *game, Board *board, QVector<Pawn*> pawns) {
-    QFile file = {filename, QIODevice::WriteOnly};
-    stream = {file};
-
-    game->serializeInto(this);
-    board->serializeInto(this);
-    stream << pawns.size(); //We need this
+SaveGameEngine* SaveGameEngine::serialize(QString filename, QVector<Pawn*> pawns, Board *board, Game *game) {
+	QFile file(filename);
+    file.open(QIODevice::WriteOnly);
+    SaveGameEngine *save = new SaveGameEngine(&file);
+    
+    *(save->stream) << pawns.size(); //Save it for later use!
     for(auto p : pawns)
-        p->serializeInto(this);
+        p->serializeInto(save);
+    board->serializeInto(save);
+    game->serializeInto(save);
+    
+    return save;
 }
 
 //Deserializes from a file
-static SaveGameEngine* deserialize(QString filename) {
-    QFile file = {filename, QIODevice::ReadOnly};
-    stream = {file};
+SaveGameEngine* SaveGameEngine::deserialize(QString filename) {
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly);
+    SaveGameEngine *save = new SaveGameEngine(&file);
 
-    s_game = new Game(this);
-    s_board = new Board(this);
-    int pawn_n {};
-    for (size_t pawn_n = 0; pawn_n < count; pawn_n++)
-        s_pawns.append(new Pawn(this));
+	int pawn_n {};
+	*(save->stream) >> pawn_n; //Retrive number of pawns
+    for (int i = 0; i < pawn_n; i++)
+        save->s_pawns.append(new Pawn(save));
+    save->s_board = new Board(save);
+    save->s_game = new Game(save);
+    
+    return save;
 }
 
-Game* getGame() {
+int SaveGameEngine::readInt() {
+    int i {};
+    *stream >> i;
+    return i;
+}
+
+void SaveGameEngine::writeInt(int i) {
+    *stream << i;
+}
+
+qreal SaveGameEngine::readReal() {
+    qreal r;
+    *stream >> r;
+    return r;
+}
+
+void SaveGameEngine::writeReal(qreal r) {
+    *stream << r;
+}
+
+Game* SaveGameEngine::getGame() {
     return s_game;
 }
 
-Board* getBoard() {
-    return s_board;
+Board* SaveGameEngine::getBoard() {
+    return SaveGameEngine::s_board;
 }
 
-QVector<Pawn*> getPawns() {
+QVector<Pawn*> SaveGameEngine::getPawns() {
     return s_pawns;
 }

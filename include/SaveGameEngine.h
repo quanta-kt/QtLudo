@@ -1,6 +1,7 @@
 #ifndef SAVE_GAME_ENGINE_H
 #define SAVE_GAME_ENGINE_H
 
+#include <QtGlobal>
 #include <QDataStream>
 #include <QFile>
 #include <QVector>
@@ -19,20 +20,31 @@ public:
     virtual ~SaveGameEngine();
 
     //Serializes to a file
-    static SaveGameEngine* serialize(QString filename, Game *game, Board *board, QVector<Pawn*> pawns);
+    static SaveGameEngine* serialize(QString filename, QVector<Pawn*> pawns, Board *board, Game *game);
 
     //Deserializes from a file
     static SaveGameEngine* deserialize(QString filename);
 
+    //Reads an integer from the stream
+    int readInt();
+
+    //Writes an integer to the stream
+    void writeInt(int i);
+
+    //Reads a qreal from the stream
+    qreal readReal();
+
+    //Writes a qreal to the stream
+    void writeReal(qreal r);
+    
     Game* getGame();
     Board* getBoard();
     QVector<Pawn*> getPawns();
 
 private:
-    explicit SaveGameEngine();
+    explicit SaveGameEngine(QFile *file);
 
-    static QDataStream *stream {};
-    QFile *mSavefile {};
+    QDataStream *stream {};
 
     Game *s_game {}; //Serialized game
     Board *s_board {}; //Serialized board
