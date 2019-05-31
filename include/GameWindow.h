@@ -28,10 +28,12 @@ class Game;
 class Board;
 class Pawn;
 class Dice;
+class SaveGameEngine;
 enum class PlayerColor;
 
 class GameWindow : public QMainWindow {
-    Q_OBJECT;
+Q_OBJECT
+
 public:
     /* Defines game state.
      * Rolling : dice needs to be rolled.
@@ -82,6 +84,10 @@ public:
 
     //Constructor and destructor
     explicit GameWindow(unsigned int players_count);
+
+    //Constructs from save state
+    explicit GameWindow(SaveGameEngine *save);
+
     ~GameWindow();
 
     /*Returns a user-friendly string representation of user name*/
@@ -147,6 +153,9 @@ private:
     QParallelAnimationGroup *diceAnimationGroup {}; //Dice Rolling animation
 
     bool needs_to_save {false}; //User has unsaved changes if this is true
+
+    //Initializes window. Convinence function. Called only in constructors and once
+    void init();
 
     /*Causes the pawn visual to move*/
     void movePawnVisual(Pawn *p, int oldpos);

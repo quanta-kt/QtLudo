@@ -34,6 +34,25 @@ footerLayout {new QVBoxLayout()},
 dice {new Dice(nullptr, 6)},
 hintLabel {new QLabel()} {
 
+    init();
+}
+
+GameWindow::GameWindow(SaveGameEngine *save) :
+    state {ROLLING},
+    mScreen (new GameScreen(this)),
+    footer {new QWidget(this)},
+    footerLayout {new QVBoxLayout()},
+    dice {new Dice(nullptr, 6)},
+    hintLabel {new QLabel()} {
+
+    this->mBoard = save->getBoard();
+    this->mGame = save->getGame();
+
+    init();
+}
+
+void GameWindow::init() {
+
     this->setCentralWidget(this->mScreen);
     this->setWindowTitle("Ludo Z+");
 
