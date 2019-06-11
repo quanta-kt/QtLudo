@@ -235,6 +235,7 @@ void GameWindow::diceAnimationFinished() {
             this->updateUi();
             delete timer; //No need to stop it, just delete it
         });
+
         timer->start(700);
         this->state = ROLLING;
         return; //It makes it look like we're still animating, but it's just a small pause between dice rollings
@@ -258,7 +259,7 @@ void GameWindow::pawnChosen(Pawn *p) {
     qDebug() << "mGame->getLastDiceValue()" << mGame->getLastDiceValue();
     qDebug() << "Pawn::getRelPosition() == " << p->getRelPosition();
     needs_to_save = true; //Changes made to game
-    p->raise(); //So that it is visible
+    p->raise(); //So that it is visible on top
     movePawnVisual(p, mGame->predictRel(p, mGame->getLastDiceValue()));
 }
 
@@ -314,18 +315,18 @@ void GameWindow::animateVisualMovement(Pawn* p, int endRel) {
     animationGroup->start();
 }
 
-void GameWindow::pawnClashed(Pawn *p) {
-    p->changePosition(Pawn::HOME);
-    //This line is used in the the Constructor of Pawn and has details in the comment there
-    p->setGeometry(painthelp::getPawnHomePosGeometry(p->getColor(), ((p->getId()+1) % 4) + 1));
-}
-
 void GameWindow::pawnAnimationFinished(Pawn *p) {
     if (!mGame->playMove(p, mGame->getLastDiceValue()))
         mGame->changeCurrentPlayer();
 
     state = ROLLING;
     updateUi();
+}
+
+void GameWindow::pawnClashed(Pawn *p) {
+    p->changePosition(Pawn::HOME);
+    //This line is used in the the Constructor of Pawn and has details in the comment there
+    p->setGeometry(painthelp::getPawnHomePosGeometry(p->getColor(), ((p->getId()+1) % 4) + 1));
 }
 
 void GameWindow::saveRequested() {

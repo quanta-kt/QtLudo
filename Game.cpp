@@ -126,8 +126,8 @@ bool Game::playMove(Pawn* pawn, int diceFace) {
     //Pawn which was hit by this one while moving
     Pawn* toClash {nullptr};
 
-    //This pawn couldn't have been clashed with anybody, because it has reached home
-    if(!pawn->hasReachedDestination()) {
+    //This pawn couldn't have been clashed with anybody, because it has reached destination
+    if(futureRel != Pawn::DEST) {
 
         //If there is only one pawn at this new location, send it back home
         //This should be done before moving the current pawn
@@ -142,6 +142,7 @@ bool Game::playMove(Pawn* pawn, int diceFace) {
             toClash = pawnsThere[0];
             re_turn = true;
         }
+
     } else {
         //But we do get a turn again,..
         re_turn = true;
@@ -172,4 +173,21 @@ QVector<PlayerColor> Game::getCurrentPlayerSequence() {
 
 unsigned int Game::getLastDiceValue() {
     return lastDiceValue;
+}
+
+bool Game::playerHasFinished(PlayerColor c) {
+    for(auto p : mBoard->getAllPawnsByColor(c))
+        if(!p->hasReachedDestination())
+            return false;
+
+    return false;
+}
+
+bool Game::isFinished() {
+    unsigned int i = 0;
+    for (auto c : *currentSequence)
+        if(playerHasFinished(c))
+            i++;
+
+    return i >= players_count - 1;
 }
